@@ -36,10 +36,7 @@ export class AuthRepository implements IAuthRepository {
       WHERE u.username = $1`,
       [username],
     );
-
     if (rows.length === 0) return undefined;
-
-    // console.log('Found user rows from AuthRepository:', rows);
 
     const permissions = rows.map((r) => r.permission_name);
     const row = rows[0];

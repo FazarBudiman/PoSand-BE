@@ -143,9 +143,6 @@ export class UserRepository implements IUserRepository {
       GROUP BY u.id, u.full_name, u.username, u.password_hash, u.role_id, u.is_active, r.role_name
     `;
 
-    // console.log(fullQuery);
-    // console.log(values);
-
     const { rows } = await this.pool.query<UserRow>(fullQuery, values);
 
     if (rows.length === 0) return undefined;
