@@ -1,0 +1,116 @@
+import {
+  Controller,
+  Post,
+  Body,
+  Res,
+  Get,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
+import type { Response } from 'express';
+
+import { SignInDto } from '../dto/signin.dto';
+import { AuthService } from '../service/auth.service';
+import { JwtPayload } from 'src/shared/types/jwt-payload.type';
+import { Public } from 'src/shared/decorators/public.decorator';
+
+interface RequestWithCookies extends Request {
+  cookies: Record<string, string>;
+  user?: JwtPayload;
+}
+
+@Controller('auth')
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
+
+  @Public()
+  @Post('login')
+  async signIn(
+    @Body() dto: SignInDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { accessToken, refreshToken } = await this.authService.signIn(
+      dto.username,
+      dto.password,
+    );
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 menit
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
+    });
+
+    return { message: 'Login berhasil' };
+  }
+
+  @Post('refresh')
+  async refresh(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const oldRefreshToken = req.cookies['refresh_token'];
+    if (!oldRefreshToken)
+      throw new UnauthorizedException({
+        message: 'No refresh token',
+        errorCode: 'INVALID_TOKEN',
+      });
+
+    const { accessToken, refreshToken } =
+      await this.authService.refresh(oldRefreshToken);
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return { message: 'Token refreshed' };
+  }
+
+  @Post('logout')
+  async logout(
+    @Req() req: RequestWithCookies,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies['refresh_token'];
+    if (refreshToken) {
+      await this.authService.logout(refreshToken);
+    }
+
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return { message: 'Logout berhasil' };
+  }
+
+  @Get('me')
+  getMe(@Req() req: RequestWithCookies) {
+    if (!req.user)
+      throw new UnauthorizedException({
+        message: 'Token tidak ditemukan',
+        errorCode: 'INVALID_TOKEN',
+      });
+
+    return {
+      id: req.user.sub,
+      username: req.user.username,
+      roleId: req.user.roleId,
+      permissions: req.user.permissions,
+    };
+  }
+}
