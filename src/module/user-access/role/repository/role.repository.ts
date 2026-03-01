@@ -96,11 +96,16 @@ export class RoleRepository implements IRoleRepository {
     }
   }
 
-  async updateRoleName(role: Pick<Role, 'id' | 'roleName'>): Promise<Role> {
+  async updateRoleName(
+    role: Pick<Role, 'id' | 'roleName'>,
+  ): Promise<Role | undefined> {
     const { rows } = await this.pool.query<RoleRow>(
-      `UPDATE roles SET role_name = $1 WHERE id = $2 RETURNING id, role_name`,
+      `UPDATE roles SET role_name = $1 WHERE id = $2 AND is_system = FALSE RETURNING id, role_name`,
       [role.roleName, role.id],
     );
+    if (rows.length === 0) {
+      return undefined;
+    }
     return mapToEntity(rows[0]);
   }
 
@@ -138,7 +143,7 @@ export class RoleRepository implements IRoleRepository {
   }
   async deleteRoleById(id: string | bigint): Promise<boolean> {
     const { rowCount } = await this.pool.query<RoleRow>(
-      `DELETE FROM roles WHERE id = $1 RETURNING id, role_name`,
+      `DELETE FROM roles WHERE id = $1 AND is_system = FALSE RETURNING id, role_name`,
       [id],
     );
     return rowCount !== null && rowCount > 0;

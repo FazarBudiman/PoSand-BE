@@ -9,7 +9,9 @@ export interface IRoleRepository {
   getRoleById(id: string | bigint): Promise<Role | undefined>;
   isRoleNameExist(roleName: string): Promise<boolean>;
   create(role: Role): Promise<Role>;
-  updateRoleName(role: Pick<Role, 'id' | 'roleName'>): Promise<Role>;
+  updateRoleName(
+    role: Pick<Role, 'id' | 'roleName'>,
+  ): Promise<Role | undefined>;
   updateRolePermissions(role: Pick<Role, 'id' | 'permissions'>): Promise<Role>;
   deleteRoleById(id: string | bigint): Promise<boolean>;
   getRoleIsAssignByUser(roleId: string | bigint): Promise<boolean>;

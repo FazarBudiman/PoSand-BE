@@ -60,7 +60,7 @@ export class RoleService {
     return roles;
   }
 
-  // Update Role
+  // Update Role by Id
   async updateRoleById(
     params: ParamsRoleRequestDto,
     body: Partial<CreateRoleRequestDto>,
@@ -71,9 +71,15 @@ export class RoleService {
     }
 
     if (body.roleName) {
-      await this.roleRepository.updateRoleName(
+      const role = await this.roleRepository.updateRoleName(
         new Role(params.id, body.roleName, []),
       );
+      if (!role) {
+        throw new ConflictException(
+          'Role is system role, cannot update',
+          'ROLE_IS_SYSTEM',
+        );
+      }
     }
 
     if (body.permissions) {
@@ -93,7 +99,7 @@ export class RoleService {
     return updated;
   }
 
-  // Delete Role
+  // Delete Role by Id
   async deleteRoleById(params: ParamsRoleRequestDto): Promise<void> {
     const isAssigned = await this.roleRepository.getRoleIsAssignByUser(
       params.id,

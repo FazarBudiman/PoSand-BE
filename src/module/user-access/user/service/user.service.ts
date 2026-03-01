@@ -22,6 +22,7 @@ export class UserService {
     private readonly passwordRepository: IPasswordRepository,
   ) {}
 
+  // Create User
   async create(body: CreateUserRequestDto): Promise<User> {
     const isUsernameExist = await this.userRepository.isUsernameExist({
       username: body.username,
@@ -43,10 +44,12 @@ export class UserService {
     });
   }
 
+  // Get All User
   async getAllUsers(): Promise<User[]> {
     return await this.userRepository.getAll();
   }
 
+  // Get User by Id
   async getUserById(params: ParamUserRequestDto): Promise<User> {
     const user = await this.userRepository.getUserById(params.id);
     if (!user) {
@@ -55,6 +58,7 @@ export class UserService {
     return user;
   }
 
+  // Update User by Id
   async updateUserById(
     params: ParamUserRequestDto,
     body: PatchUserRequestDto,
@@ -66,6 +70,7 @@ export class UserService {
     return user;
   }
 
+  // Delete User by Id
   async deleteUserById(params: ParamUserRequestDto): Promise<void> {
     const success = await this.userRepository.deleteUserById(params.id);
     if (!success) {
