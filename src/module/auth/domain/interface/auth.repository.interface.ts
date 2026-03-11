@@ -1,7 +1,7 @@
-import { User } from '../../../user-access/user/domain/user.entity';
+import { AuthenticatedUserRow } from '../../repository/auth.row';
 
 export const AUTH_REPOSITORY = Symbol('IAuthRepository');
 
 export interface IAuthRepository {
-  findByUsername(username: string): Promise<User | undefined>;
+  findByUsername(username: string): Promise<AuthenticatedUserRow | undefined>;
 }

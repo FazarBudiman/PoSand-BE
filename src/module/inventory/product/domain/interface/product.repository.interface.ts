@@ -1,38 +1,21 @@
-import {
-  ProductCreateRequestDto,
-  ProductVariantCreateRequestDto,
-} from '../../dto/request/product.request';
-import { ProductVariant } from '../product-variant.entity';
-import { Product } from '../product.entity';
 import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { ProductRow } from '../../repository/product.row';
+import { Product } from '../product.entity';
 
 export const PRODUCT_REPOSITORY = Symbol('IProductRepository');
+
 export interface IProductRepository {
-  createProduct(
-    product: ProductCreateRequestDto,
-    userWhoCreated: string,
-  ): Promise<Product>;
-  getAllProduct(): Promise<Product[]>;
-  getProductById(id: string): Promise<Product>;
-  isProductExist(id: string): Promise<boolean | undefined>;
-  createProductVariant(
-    productId: string,
-    productVariant: ProductVariantCreateRequestDto,
-    userWhoCreated: string,
+  createProduct(product: Product, userWhoCreated: string): Promise<ProductRow>;
+  findAllProducts(): Promise<ProductRow[]>;
+  findProductById(
+    id: string,
     txContext?: PgTransactionContext,
-  ): Promise<ProductVariant[]>;
-  insertStockMovements(
-    variants: ProductVariant[],
-    referenceType: string,
-    referenceId: string,
-    userWhoCreated: string,
-    txContext?: PgTransactionContext,
-  ): Promise<void>;
+  ): Promise<ProductRow | undefined>;
+  existsProductById(id: string): Promise<boolean>;
   updateProductById(
     id: string,
-    product: Pick<ProductCreateRequestDto, 'name' | 'sellingPrice'>,
-    userWhoUpdated: string,
-  ): Promise<Product | undefined>;
+    product: Partial<Product>,
+    updatedBy: string,
+  ): Promise<ProductRow | undefined>;
   deleteProductById(id: string): Promise<boolean>;
-  hasActiveStock(id: string): Promise<boolean>;
 }

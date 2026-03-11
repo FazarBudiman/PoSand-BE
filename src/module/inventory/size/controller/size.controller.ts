@@ -11,7 +11,7 @@ import { SizeService } from '../service/size.service';
 import { SizeGroupMapper } from '../mapper/size-group.mapper';
 import {
   SizeCreateRequestDto,
-  SizeUpdateResponseDto,
+  SizeUpdateRequestDto,
 } from '../dto/request/size.request';
 import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
@@ -22,9 +22,8 @@ export class SizeController {
 
   @RequirePermissions('product:read')
   @Get()
-  async getAllSizeGroup() {
-    const sizeGroups = await this.sizeService.getAllSizeGroup();
-
+  async findAllSizeGroups() {
+    const sizeGroups = await this.sizeService.findAllSizeGroups();
     return {
       data: SizeGroupMapper.toResponseList(sizeGroups),
     };
@@ -40,7 +39,6 @@ export class SizeController {
       userId,
       body,
     );
-
     return {
       message: 'Size group created successfully',
       data: SizeGroupMapper.toResponse(createdSizeGroup),
@@ -49,9 +47,8 @@ export class SizeController {
 
   @RequirePermissions('product:read')
   @Get(':id')
-  async getSizeGroupById(@Param('id') id: string) {
-    const sizeGroup = await this.sizeService.getSizeGroupById(id);
-
+  async findSizeGroupById(@Param('id') id: string) {
+    const sizeGroup = await this.sizeService.findSizeGroupById(id);
     return {
       data: SizeGroupMapper.toResponse(sizeGroup),
     };
@@ -62,14 +59,13 @@ export class SizeController {
   async updateSizeGroup(
     @Param('id') id: string,
     @CurrentUser('sub') userId: string,
-    @Body() body: SizeUpdateResponseDto,
+    @Body() body: SizeUpdateRequestDto,
   ) {
     const updatedSizeGroup = await this.sizeService.updateSizeGroupById(
       id,
       userId,
       body,
     );
-
     return {
       message: 'Size group updated successfully',
       data: SizeGroupMapper.toResponse(updatedSizeGroup),
@@ -80,7 +76,6 @@ export class SizeController {
   @Delete(':id')
   async deleteSizeGroup(@Param('id') id: string) {
     await this.sizeService.deleteSizeGroupById(id);
-
     return {
       message: 'Size group deleted successfully',
     };

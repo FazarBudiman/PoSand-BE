@@ -1,34 +1,14 @@
 import { Inject } from '@nestjs/common';
-import { ProductStock } from '../domain/product-stock.entity';
 import { PG_POOL } from 'src/shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { IProductStockRepository } from '../domain/interface/product-stock.repository.interface';
-
-interface StockHistoryRow {
-  product_id: string;
-  product_name: string;
-  variant_id: string;
-  size_name: string;
-  quantity_stock: number;
-  stock_history: [];
-}
-
-function mapToEntityStockHistory(row: StockHistoryRow): ProductStock {
-  return new ProductStock(
-    row.product_id,
-    row.product_name,
-    row.variant_id,
-    row.size_name,
-    row.quantity_stock,
-    row.stock_history,
-  );
-}
+import { ProductStockRow } from './product-stock.row';
 
 export class ProductStockRepository implements IProductStockRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getHistoryStockProductById(id: string): Promise<ProductStock[]> {
-    const { rows } = await this.pool.query<StockHistoryRow>(
+  async findStockHistoryByProductId(id: string): Promise<ProductStockRow[]> {
+    const { rows } = await this.pool.query<ProductStockRow>(
       `
       SELECT 
         p.id as product_id,
@@ -58,6 +38,6 @@ export class ProductStockRepository implements IProductStockRepository {
       [id],
     );
 
-    return rows.map((row) => mapToEntityStockHistory(row));
+    return rows;
   }
 }

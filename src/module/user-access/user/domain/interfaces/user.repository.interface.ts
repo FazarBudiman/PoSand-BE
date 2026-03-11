@@ -1,17 +1,13 @@
+import { UserRow } from '../../repository/user.row';
 import { User } from '../user.entity';
 
-export const USER_REPOSITORY = Symbol('IUserRepository');
+export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
 
 export interface IUserRepository {
-  isUsernameExist(user: Pick<User, 'username'>): Promise<boolean>;
-  create(
-    user: Pick<User, 'fullname' | 'username' | 'password' | 'roleId'>,
-  ): Promise<User>;
-  getAll(): Promise<User[]>;
-  getUserById(id: string | bigint): Promise<User | undefined>;
-  updateUserById(
-    id: string | bigint,
-    user: Partial<Pick<User, 'roleId' | 'isActive'>>,
-  ): Promise<User | undefined>;
-  deleteUserById(id: string | bigint): Promise<boolean>;
+  existsUserByUsername(username: string): Promise<boolean>;
+  createUser(user: User): Promise<UserRow>;
+  findAllUsers(): Promise<UserRow[]>;
+  findUserById(id: string): Promise<UserRow | undefined>;
+  updateUserById(id: string, user: Partial<User>): Promise<UserRow | undefined>;
+  deleteUserById(id: string): Promise<boolean>;
 }

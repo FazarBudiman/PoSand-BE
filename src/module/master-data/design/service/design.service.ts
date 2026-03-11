@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Design } from '../domain/design.entity';
 import { DESIGN_REPOSITORY } from '../domain/interface/design.repository.interface';
 import type { IDesignRepository } from '../domain/interface/design.repository.interface';
@@ -8,38 +8,67 @@ import {
 } from '../dto/request/design.request.dto';
 import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
 import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { StorageService } from 'src/shared/storage/storage.service';
+import { DesignRow } from '../repository/design.row';
 
+interface MulterFile {
+  originalname: string;
+  buffer: Buffer;
+  mimetype: string;
+}
+
+@Injectable()
 export class DesignService {
   constructor(
     @Inject(DESIGN_REPOSITORY)
     private readonly designRepository: IDesignRepository,
+    private readonly storageService: StorageService,
   ) {}
 
-  // Get All Design
-  async getAllDesign(): Promise<Design[]> {
-    return await this.designRepository.getAllDesign();
+  // Find All Designs
+  async findAllDesigns(): Promise<DesignRow[]> {
+    return this.designRepository.findAllDesigns();
   }
 
   // Create Design
   async createDesign(
-    design: DesignCreateRequestDto,
-    userId: string,
-  ): Promise<Design> {
-    const isDesignExist = await this.designRepository.isDesignExist({
-      name: design.name,
-    });
-    if (isDesignExist) {
+    body: DesignCreateRequestDto,
+    createdBy: string,
+    file: MulterFile,
+  ): Promise<DesignRow> {
+    const isExist = await this.designRepository.existsDesignByName(body.name);
+
+    if (isExist) {
       throw new ConflictException(
         'Design already exists',
         'RESOURCE_ALREADY_EXIST',
       );
     }
-    return await this.designRepository.createDesign(design, userId);
+
+    // Upload file to Supabase Storage
+    const fileName = `${Date.now()}-${file.originalname}`;
+    const filePath = `designs/${fileName}`;
+    await this.storageService.uploadFile(filePath, file.buffer, file.mimetype);
+
+    // Get Public URL
+    const publicUrl = this.storageService.getFileUrl(filePath);
+
+    // Convert basePrice to number if it's a string (common in multipart/form-data)
+    // const basePrice = Number(design.basePrice);
+    const design = Design.create({
+      name: body.name,
+      referenceImageUrl: publicUrl,
+      basePrice: body.basePrice,
+      description: body.description,
+      category: body.category,
+    });
+
+    return this.designRepository.createDesign(design, createdBy);
   }
 
-  // Get Design By Id
-  async getDesignById(id: string): Promise<Design> {
-    const design = await this.designRepository.getDesignById(id);
+  // Find Design By Id
+  async findDesignById(id: string): Promise<DesignRow> {
+    const design = await this.designRepository.findDesignById(id);
     if (!design) {
       throw new NotFoundException(
         `Design with ID ${id} not found`,
@@ -53,13 +82,14 @@ export class DesignService {
   async updateDesignById(
     id: string,
     design: DesignUpdateRequestDto,
-    userId: string,
-  ): Promise<Design> {
+    updatedBy: string,
+  ): Promise<DesignRow> {
     if (design.name) {
-      const isDesignExist = await this.designRepository.isDesignExist({
-        name: design.name,
-      });
-      if (isDesignExist) {
+      const isExist = await this.designRepository.existsDesignByName(
+        design.name,
+      );
+
+      if (isExist) {
         throw new ConflictException(
           'Design already exists',
           'RESOURCE_ALREADY_EXIST',
@@ -70,7 +100,7 @@ export class DesignService {
     const updatedDesign = await this.designRepository.updateDesignById(
       id,
       design,
-      userId,
+      updatedBy,
     );
     if (!updatedDesign) {
       throw new NotFoundException(

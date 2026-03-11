@@ -3,55 +3,33 @@ import { IDesignRepository } from '../domain/interface/design.repository.interfa
 import { PG_POOL } from 'src/shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { Design } from '../domain/design.entity';
-
-interface DesignRow {
-  id: string;
-  design_name: string;
-  design_description: string;
-  design_category: string;
-  reference_image_url: string;
-  base_price_estimation: number;
-}
-
-function mapToEntity(row: DesignRow): Design {
-  return new Design(
-    row.id,
-    row.design_name,
-    row.design_description,
-    row.design_category,
-    row.reference_image_url,
-    Number(row.base_price_estimation),
-  );
-}
+import { DesignRow } from './design.row';
 
 @Injectable()
 export class DesignRepository implements IDesignRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getAllDesign(): Promise<Design[]> {
+  async findAllDesigns(): Promise<DesignRow[]> {
     const { rows } = await this.pool.query<DesignRow>(
       `SELECT 
         id, design_name, design_description, 
         design_category, reference_image_url, 
         base_price_estimation 
       FROM designs 
-      WHERE is_deleted = false  `,
+      WHERE is_deleted = false`,
     );
-    return rows.map((row) => mapToEntity(row));
+    return rows;
   }
 
-  async isDesignExist(design: Pick<Design, 'name'>): Promise<boolean> {
+  async existsDesignByName(name: string): Promise<boolean> {
     const { rowCount } = await this.pool.query(
-      `SELECT id FROM designs WHERE design_name = $1 AND is_deleted = false`,
-      [design.name],
+      `SELECT id FROM designs WHERE design_name = $1 `,
+      [name],
     );
     return rowCount !== null && rowCount > 0;
   }
 
-  async createDesign(
-    design: Omit<Design, 'id'>,
-    userId: string,
-  ): Promise<Design> {
+  async createDesign(design: Design, createdBy: string): Promise<DesignRow> {
     const { rows } = await this.pool.query<DesignRow>(
       `INSERT INTO designs (
         design_name, 
@@ -67,15 +45,15 @@ export class DesignRepository implements IDesignRepository {
         design.name,
         design.description,
         design.category,
-        design.referenceImage,
+        design.referenceImageUrl,
         design.basePrice,
-        userId,
+        createdBy,
       ],
     );
-    return mapToEntity(rows[0]);
+    return rows[0];
   }
 
-  async getDesignById(id: string | bigint): Promise<Design | undefined> {
+  async findDesignById(id: string): Promise<DesignRow | undefined> {
     const { rows } = await this.pool.query<DesignRow>(
       `SELECT 
         id, design_name, design_description, 
@@ -86,14 +64,14 @@ export class DesignRepository implements IDesignRepository {
       [id],
     );
     if (rows.length === 0) return undefined;
-    return mapToEntity(rows[0]);
+    return rows[0];
   }
 
   async updateDesignById(
-    id: string | bigint,
-    design: Partial<Omit<Design, 'id'>>,
-    userId: string,
-  ): Promise<Design | undefined> {
+    id: string,
+    design: Partial<Design>,
+    updatedBy: string,
+  ): Promise<DesignRow | undefined> {
     const values: any[] = [];
     let query = `UPDATE designs SET updated_by = $1, updated_at = NOW()`;
     let index = 2;
@@ -113,9 +91,9 @@ export class DesignRepository implements IDesignRepository {
       values.push(design.category);
       index++;
     }
-    if (design.referenceImage) {
+    if (design.referenceImageUrl) {
       query += `, reference_image_url = $${index}`;
-      values.push(design.referenceImage);
+      values.push(design.referenceImageUrl);
       index++;
     }
     if (design.basePrice) {
@@ -126,14 +104,14 @@ export class DesignRepository implements IDesignRepository {
 
     query += ` WHERE id = $${index} AND is_deleted = false RETURNING *`;
     values.push(id);
-    values.unshift(userId);
+    values.unshift(updatedBy);
 
     const { rows } = await this.pool.query<DesignRow>(query, values);
     if (rows.length === 0) return undefined;
-    return mapToEntity(rows[0]);
+    return rows[0];
   }
 
-  async deleteDesignById(id: string | bigint): Promise<boolean> {
+  async deleteDesignById(id: string): Promise<boolean> {
     const { rowCount } = await this.pool.query(
       `UPDATE designs SET is_deleted = true WHERE id = $1 AND is_deleted = false RETURNING id`,
       [id],

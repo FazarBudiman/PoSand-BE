@@ -1,63 +1,83 @@
 import { SIZE_REPOSITORY } from '../domain/interface/size.repository.interface';
 import type { ISizeRepository } from '../domain/interface/size.repository.interface';
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { SizeGroup } from '../domain/size-group.entity';
 import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
 import type { ITransactionManager } from 'src/shared/database/transaction/transaction-manager.interface';
 import {
   SizeCreateRequestDto,
-  SizeUpdateResponseDto,
+  SizeUpdateRequestDto,
 } from '../dto/request/size.request';
 import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
 import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { SizeGroupRow } from '../repository/size-group.row';
+import { SIZE_GROUP_REPOSITORY } from '../domain/interface/size-group.repository.interface';
+import type { ISizeGroupRepository } from '../domain/interface/size-group.repository.interface';
+import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
 
+@Injectable()
 export class SizeService {
   constructor(
     @Inject(SIZE_REPOSITORY)
     private readonly sizeRepository: ISizeRepository,
+
+    @Inject(SIZE_GROUP_REPOSITORY)
+    private readonly sizeGroupRepository: ISizeGroupRepository,
+
     @Inject(TRANSACTION_MANAGER)
     private readonly transactionManager: ITransactionManager,
   ) {}
 
-  // Get All Size Group
-  async getAllSizeGroup(): Promise<SizeGroup[]> {
-    return await this.sizeRepository.getAllSizeGroup();
+  // Find All Size Groups
+  async findAllSizeGroups(): Promise<SizeGroupRow[]> {
+    return this.sizeGroupRepository.findAllSizeGroups();
   }
 
   // Create Size Group
   async createSizeGroup(
     userId: string,
     body: SizeCreateRequestDto,
-  ): Promise<SizeGroup> {
-    const isExist = await this.sizeRepository.isSizeGroupExist(body.groupName);
+  ): Promise<SizeGroupRow> {
+    const isExist = await this.sizeGroupRepository.existsSizeGroupByName(
+      body.groupName,
+    );
     if (isExist) {
       throw new ConflictException(
         'Size group name already exists',
         'RESOURCE_ALREADY_EXIST',
       );
     }
-    return await this.transactionManager.runInTransaction(async (context) => {
-      const sizeGroup = await this.sizeRepository.createSizeGroup(
-        body.groupName,
+    const sizeGroup = SizeGroup.create({
+      groupName: body.groupName,
+      sizes: body.sizes,
+    });
+
+    return this.transactionManager.runInTransaction(async (context) => {
+      const sizeGroupCreated = await this.sizeGroupRepository.createSizeGroup(
+        sizeGroup.groupName,
         userId,
-        context,
+        context as PgTransactionContext,
       );
 
       const createdSizes = await this.sizeRepository.createSizes(
-        sizeGroup.id,
-        body.sizes,
+        sizeGroupCreated.id,
+        sizeGroup.sizes,
         userId,
-        context,
+        context as PgTransactionContext,
       );
 
-      sizeGroup.sizes = createdSizes;
-      return sizeGroup;
+      const sizeGroupReturned: SizeGroupRow = {
+        id: sizeGroupCreated.id,
+        group_name: sizeGroupCreated.group_name,
+        sizes: createdSizes,
+      };
+      return sizeGroupReturned;
     });
   }
 
-  // Get Size Group By Id
-  async getSizeGroupById(id: string): Promise<SizeGroup> {
-    const sizeGroup = await this.sizeRepository.getSizeGroupById(id);
+  // Find Size Group By Id
+  async findSizeGroupById(id: string): Promise<SizeGroupRow> {
+    const sizeGroup = await this.sizeGroupRepository.findSizeGroupById(id);
     if (!sizeGroup) {
       throw new NotFoundException('Size group not found', 'RESOURCE_NOT_FOUND');
     }
@@ -66,12 +86,12 @@ export class SizeService {
 
   // Update Size Group by Id
   async updateSizeGroupById(
-    id: string,
-    userId: string,
-    body: Partial<SizeUpdateResponseDto>,
-  ): Promise<SizeGroup> {
+    sizeGroupid: string,
+    updatedBy: string,
+    body: SizeUpdateRequestDto,
+  ): Promise<SizeGroupRow> {
     if (body.groupName) {
-      const isExist = await this.sizeRepository.isSizeGroupExist(
+      const isExist = await this.sizeGroupRepository.existsSizeGroupByName(
         body.groupName,
       );
       if (isExist) {
@@ -81,10 +101,10 @@ export class SizeService {
         );
       }
 
-      const sizeGroup = await this.sizeRepository.updateSizeGroupById(
-        id,
+      const sizeGroup = await this.sizeGroupRepository.updateSizeGroupById(
+        sizeGroupid,
         body.groupName,
-        userId,
+        updatedBy,
       );
       if (!sizeGroup) {
         throw new NotFoundException(
@@ -97,30 +117,40 @@ export class SizeService {
     if (body.sizes) {
       const sizesToUpdate = body.sizes;
       await this.transactionManager.runInTransaction(async (context) => {
-        await this.sizeRepository.deleteSizesBySizeGroupId(id, false, context);
+        await this.sizeRepository.deleteSizesBySizeGroupId(
+          sizeGroupid,
+          false,
+          context as PgTransactionContext,
+        );
         await this.sizeRepository.createSizes(
-          id,
+          sizeGroupid,
           sizesToUpdate,
-          userId,
-          context,
+          updatedBy,
+          context as PgTransactionContext,
         );
       });
     }
 
-    const updatedSizeGroup = await this.getSizeGroupById(id);
-    if (!updatedSizeGroup) {
-      throw new NotFoundException('Size group not found', 'RESOURCE_NOT_FOUND');
-    }
+    const updatedSizeGroup = await this.findSizeGroupById(sizeGroupid);
     return updatedSizeGroup;
   }
 
   // Delete Size Group By Id
-  async deleteSizeGroupById(id: string): Promise<boolean> {
-    await this.sizeRepository.deleteSizesBySizeGroupId(id, true);
-    const isSuccess = await this.sizeRepository.deleteSizeGroupById(id);
-    if (!isSuccess) {
-      throw new NotFoundException('Size group not found', 'RESOURCE_NOT_FOUND');
-    }
-    return isSuccess;
+  async deleteSizeGroupById(sizeGroupId: string): Promise<void> {
+    await this.transactionManager.runInTransaction(async (context) => {
+      const isSuccess = await this.sizeRepository.deleteSizesBySizeGroupId(
+        sizeGroupId,
+        true,
+        context as PgTransactionContext,
+      );
+      await this.sizeGroupRepository.deleteSizeGroupById(sizeGroupId);
+
+      if (!isSuccess) {
+        throw new NotFoundException(
+          'Size group not found',
+          'RESOURCE_NOT_FOUND',
+        );
+      }
+    });
   }
 }

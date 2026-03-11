@@ -35,7 +35,7 @@ export class AuthService {
         'INVALID_CREDENTIALS',
       );
 
-    if (!user.isActive)
+    if (!user.is_active)
       throw new ForbiddenException({
         message: 'Akun tidak aktif',
         errorCode: 'ACCOUNT_INACTIVE',
@@ -43,7 +43,7 @@ export class AuthService {
 
     const isValid = await this.passwordRepository.compare(
       password,
-      user.password,
+      user.password_hash,
     );
 
     if (!isValid)
@@ -52,10 +52,12 @@ export class AuthService {
         'INVALID_CREDENTIALS',
       );
 
+    // console.log(user);
+
     const payload = {
       sub: user.id,
       username: user.username,
-      roleId: user.roleId,
+      roleId: user.role_id,
       permissions: user.permissions,
     };
 

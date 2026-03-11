@@ -11,4 +11,4 @@ export class SizeCreateRequestDto {
   sizes: string[];
 }
 
-export class SizeUpdateResponseDto extends PartialType(SizeCreateRequestDto) {}
+export class SizeUpdateRequestDto extends PartialType(SizeCreateRequestDto) {}

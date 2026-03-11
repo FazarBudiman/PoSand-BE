@@ -1,6 +1,6 @@
-export class Size {
-  constructor(
-    public id: string,
-    public sizeName: string,
-  ) {}
-}
+// export class Size {
+//   constructor(
+//     public id: string,
+//     public sizeName: string,
+//   ) {}
+// }

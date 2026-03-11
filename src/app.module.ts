@@ -12,6 +12,8 @@ import { PermissionGuard } from './shared/guards/permission.guard';
 import { DesignModule } from './module/master-data/design/design.module';
 import { SizeModule } from './module/inventory/size/size.module';
 import { ProductModule } from './module/inventory/product/product.module';
+import { CustomerModule } from './module/master-data/customer/customer.module';
+import { SaleModule } from './module/sale/sale.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { ProductModule } from './module/inventory/product/product.module';
     DesignModule,
     SizeModule,
     ProductModule,
+    CustomerModule,
+    SaleModule,
   ],
   controllers: [AppController],
   providers: [

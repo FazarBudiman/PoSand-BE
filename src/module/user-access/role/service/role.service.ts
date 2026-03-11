@@ -1,34 +1,48 @@
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ROLE_REPOSITORY } from '../domain/interface/role.respository.interface';
-import type { RoleRepository } from '../repository/role.repository';
+import type { IRoleRepository } from '../domain/interface/role.respository.interface';
 import { Role } from '../domain/role.entity';
 import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
 import {
   CreateRoleRequestDto,
-  ParamsRoleRequestDto,
+  UpdateRoleRequestDto,
+  // UpdateRoleRequestDto,
 } from '../dto/request/role.request.dto';
-import { Permission } from '../domain/permission.entity';
 import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
+import type { ITransactionManager } from 'src/shared/database/transaction/transaction-manager.interface';
+import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PermissionRow } from '../repository/permission.row';
+import { PERMISSION_REPOSITORY } from '../domain/interface/permission.repository.interface';
+import type { IPermissionRepository } from '../domain/interface/permission.repository.interface';
+import { RoleRow } from '../repository/role.row';
 
+@Injectable()
 export class RoleService {
   constructor(
     @Inject(ROLE_REPOSITORY)
-    private readonly roleRepository: RoleRepository,
+    private readonly roleRepository: IRoleRepository,
+
+    @Inject(PERMISSION_REPOSITORY)
+    private readonly permissionRepository: IPermissionRepository,
+
+    @Inject(TRANSACTION_MANAGER)
+    private readonly transactionManager: ITransactionManager,
   ) {}
 
-  // Get All Permission
-  async getAllPermission(): Promise<Permission[]> {
-    return await this.roleRepository.getAllPermission();
+  // Find All Permissions
+  async findAllPermissions(): Promise<PermissionRow[]> {
+    return this.permissionRepository.findAllPermissions();
   }
 
-  // Get All Role
-  async getAll(): Promise<Role[]> {
-    return await this.roleRepository.getAllRole();
+  // Find All Roles
+  async findAllRoles(): Promise<RoleRow[]> {
+    return this.roleRepository.findAllRoles();
   }
 
-  // Get Role By Id
-  async getRoleById(params: ParamsRoleRequestDto): Promise<Role> {
-    const role = await this.roleRepository.getRoleById(params.id);
+  // Find Role By Id
+  async findRoleById(id: string): Promise<RoleRow> {
+    const role = await this.roleRepository.findRoleById(id);
     if (!role) {
       throw new NotFoundException('Role not found', 'RESOURCE_NOT_FOUND');
     }
@@ -36,44 +50,61 @@ export class RoleService {
   }
 
   // Create Role
-  async create(body: CreateRoleRequestDto): Promise<Role> {
-    const role = await this.roleRepository.isRoleNameExist(body.roleName);
-    if (role) {
+  async createRole(body: CreateRoleRequestDto): Promise<RoleRow> {
+    const exists = await this.roleRepository.existsRoleByName(body.roleName);
+
+    if (exists) {
       throw new ConflictException(
         'Role name already exists',
         'RESOURCE_ALREADY_EXIST',
       );
     }
 
-    const roleCreated = await this.roleRepository.create(
-      new Role(
-        '',
-        body.roleName,
-        body.permissions.map((id) => new Permission(id, '')),
-      ),
+    const role = Role.create({
+      roleName: body.roleName,
+      permissions: body.permissions,
+    });
+
+    // Insert Role and Assign Permissions
+    const createdRole = await this.transactionManager.runInTransaction(
+      async (tx) => {
+        const roleCreated = await this.roleRepository.createRole(
+          role.roleName,
+          tx as PgTransactionContext,
+        );
+
+        const assignedPermissions =
+          await this.permissionRepository.assignPermissionIntoRole(
+            roleCreated.id,
+            role.permissions,
+            tx as PgTransactionContext,
+          );
+
+        const roleReturned: RoleRow = {
+          id: roleCreated.id,
+          role_name: roleCreated.role_name,
+          permissions: assignedPermissions,
+        };
+
+        return roleReturned;
+      },
     );
 
-    const roles = await this.roleRepository.getRoleById(roleCreated.id);
-    if (!roles) {
-      throw new NotFoundException('Role not found', 'RESOURCE_NOT_FOUND');
-    }
-    return roles;
+    return createdRole;
   }
 
   // Update Role by Id
   async updateRoleById(
-    params: ParamsRoleRequestDto,
-    body: Partial<CreateRoleRequestDto>,
-  ): Promise<Role> {
-    const existing = await this.roleRepository.getRoleById(params.id);
+    id: string,
+    body: UpdateRoleRequestDto,
+  ): Promise<RoleRow> {
+    const existing = await this.roleRepository.findRoleById(id);
     if (!existing) {
       throw new NotFoundException('Role not found', 'RESOURCE_NOT_FOUND');
     }
 
     if (body.roleName) {
-      const role = await this.roleRepository.updateRoleName(
-        new Role(params.id, body.roleName, []),
-      );
+      const role = await this.roleRepository.updateRoleName(id, body.roleName);
       if (!role) {
         throw new ConflictException(
           'Role is system role, cannot update',
@@ -83,16 +114,21 @@ export class RoleService {
     }
 
     if (body.permissions) {
-      await this.roleRepository.updateRolePermissions(
-        new Role(
-          params.id,
-          '',
-          body.permissions.map((id) => new Permission(id, '')),
-        ),
-      );
+      await this.transactionManager.runInTransaction(async (tx) => {
+        await this.permissionRepository.deleteAssignedPermission(
+          id,
+          tx as PgTransactionContext,
+        );
+
+        await this.permissionRepository.assignPermissionIntoRole(
+          id,
+          body.permissions!,
+          tx as PgTransactionContext,
+        );
+      });
     }
 
-    const updated = await this.roleRepository.getRoleById(params.id);
+    const updated = await this.roleRepository.findRoleById(id);
     if (!updated) {
       throw new NotFoundException('Role not found', 'RESOURCE_NOT_FOUND');
     }
@@ -100,10 +136,8 @@ export class RoleService {
   }
 
   // Delete Role by Id
-  async deleteRoleById(params: ParamsRoleRequestDto): Promise<void> {
-    const isAssigned = await this.roleRepository.getRoleIsAssignByUser(
-      params.id,
-    );
+  async deleteRoleById(id: string): Promise<void> {
+    const isAssigned = await this.roleRepository.isRoleAssignedToUser(id);
     if (isAssigned) {
       throw new ConflictException(
         'Role cannot be deleted while assigned to users',
@@ -111,7 +145,7 @@ export class RoleService {
       );
     }
 
-    const success = await this.roleRepository.deleteRoleById(params.id);
+    const success = await this.roleRepository.deleteRoleById(id);
     if (!success) {
       throw new NotFoundException('Role not found', 'RESOURCE_NOT_FOUND');
     }

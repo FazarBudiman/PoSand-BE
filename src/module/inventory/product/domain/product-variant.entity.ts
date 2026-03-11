@@ -1,11 +1,23 @@
 export class ProductVariant {
-  public id?: string;
-  public productId?: string;
-  public sizeId?: string;
-  public quantityStock?: number;
-  public sizeName?: string;
+  constructor(
+    public sizeId: string | number,
+    public quantityStock: number,
+    public id?: string,
+  ) {}
 
-  constructor(partial?: Partial<ProductVariant>) {
-    Object.assign(this, partial);
+  static create(params: {
+    sizeId: string | number;
+    quantityStock: number;
+  }): ProductVariant {
+    return new ProductVariant(params.sizeId, params.quantityStock);
+  }
+
+  static createMany(
+    params: {
+      sizeId: string | number;
+      quantityStock: number;
+    }[],
+  ): ProductVariant[] {
+    return params.map((p) => ProductVariant.create(p));
   }
 }

@@ -1,20 +1,20 @@
-import { ProductStock } from '../domain/product-stock.entity';
 import { ProductStockResponseDto } from '../dto/response/product-stock.response';
+import { ProductStockRow } from '../repository/product-stock.row';
 
 export class ProductStockMapper {
-  static toResponse(productStock: ProductStock): ProductStockResponseDto {
+  static toResponse(productStock: ProductStockRow): ProductStockResponseDto {
     return {
-      productId: productStock.productId,
-      productName: productStock.productName,
-      variantId: productStock.variantId,
-      sizeName: productStock.sizeName,
-      quantityStock: productStock.quantityStock,
-      stockHistory: productStock.stockHistory,
+      productId: productStock.product_id,
+      productName: productStock.product_name,
+      variantId: productStock.variant_id,
+      sizeName: productStock.size_name,
+      quantityStock: productStock.quantity_stock,
+      stockHistory: productStock.stock_history,
     };
   }
 
   static toResponseList(
-    productStocks: ProductStock[],
+    productStocks: ProductStockRow[],
   ): ProductStockResponseDto[] {
     return productStocks.map((productStock) => this.toResponse(productStock));
   }

@@ -10,7 +10,6 @@ import {
 import { UserService } from '../service/user.service';
 import {
   CreateUserRequestDto,
-  ParamUserRequestDto,
   PatchUserRequestDto,
 } from '../dto/request/user.request.dto';
 import { UserMapper } from '../mapper/user.mapper';
@@ -22,8 +21,8 @@ export class UserController {
 
   @RequirePermissions('user:create')
   @Post('/')
-  async create(@Body() body: CreateUserRequestDto) {
-    const user = await this.userService.create(body);
+  async createUser(@Body() body: CreateUserRequestDto) {
+    const user = await this.userService.createUser(body);
     return {
       message: 'User berhasil dibuat',
       data: UserMapper.toResponse(user),
@@ -32,8 +31,8 @@ export class UserController {
 
   @RequirePermissions('user:read')
   @Get('/')
-  async getAll() {
-    const users = await this.userService.getAllUsers();
+  async findAllUsers() {
+    const users = await this.userService.findAllUsers();
     return {
       data: UserMapper.toResponseList(users),
     };
@@ -41,8 +40,8 @@ export class UserController {
 
   @RequirePermissions('user:read')
   @Get('/:id')
-  async getUserById(@Param() params: ParamUserRequestDto) {
-    const user = await this.userService.getUserById(params);
+  async findUserById(@Param('id') id: string) {
+    const user = await this.userService.findUserById(id);
     return {
       data: UserMapper.toResponse(user),
     };
@@ -50,11 +49,8 @@ export class UserController {
 
   @RequirePermissions('user:update')
   @Patch('/:id')
-  async updateuserById(
-    @Param() params: ParamUserRequestDto,
-    @Body() body: PatchUserRequestDto,
-  ) {
-    const user = await this.userService.updateUserById(params, body);
+  async updateUser(@Param('id') id: string, @Body() body: PatchUserRequestDto) {
+    const user = await this.userService.updateUserById(id, body);
     return {
       message: 'User berhasil diupdate',
       data: UserMapper.toResponse(user),
@@ -63,8 +59,8 @@ export class UserController {
 
   @RequirePermissions('user:delete')
   @Delete('/:id')
-  async deleteUserById(@Param() params: ParamUserRequestDto) {
-    await this.userService.deleteUserById(params);
+  async deleteUser(@Param('id') id: string) {
+    await this.userService.deleteUserById(id);
     return {
       message: 'User berhasil dihapus',
     };

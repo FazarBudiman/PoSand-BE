@@ -1,26 +1,19 @@
-import { SizeGroup } from '../domain/size-group.entity';
 import { SizeGroupResponseDto } from '../dto/response/size.response';
+import { SizeGroupRow } from '../repository/size-group.row';
 
 export class SizeGroupMapper {
-  static toResponse(rows: SizeGroup): SizeGroupResponseDto {
+  static toResponse(row: SizeGroupRow): SizeGroupResponseDto {
     return {
-      id: rows.id,
-      groupName: rows.groupName,
-      sizes: rows.sizes.map((size) => ({
+      id: row.id,
+      groupName: row.group_name,
+      sizes: row.sizes.map((size) => ({
         id: size.id,
-        sizeName: size.sizeName,
+        sizeName: size.size_name,
       })),
     };
   }
 
-  static toResponseList(rows: SizeGroup[]): SizeGroupResponseDto[] {
-    return rows.map((row) => ({
-      id: row.id,
-      groupName: row.groupName,
-      sizes: row.sizes.map((size) => ({
-        id: size.id,
-        sizeName: size.sizeName,
-      })),
-    }));
+  static toResponseList(rows: SizeGroupRow[]): SizeGroupResponseDto[] {
+    return rows.map((size) => this.toResponse(size));
   }
 }

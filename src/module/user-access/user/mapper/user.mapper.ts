@@ -1,19 +1,19 @@
-import { User } from '../domain/user.entity';
 import { UserResponseDto } from '../dto/response/user.response.dto';
+import { UserRow } from '../repository/user.row';
 
 export class UserMapper {
-  static toResponse(user: User): UserResponseDto {
+  static toResponse(user: UserRow): UserResponseDto {
     return {
       id: user.id,
-      fullname: user.fullname,
+      fullname: user.full_name,
       username: user.username,
-      roleName: user.roleName,
-      permissions: user.permissions,
-      isActive: user.isActive,
+      roleName: user.role_name,
+      permissions: user.permission_name,
+      isActive: user.is_active,
     };
   }
 
-  static toResponseList(users: User[]): UserResponseDto[] {
+  static toResponseList(users: UserRow[]): UserResponseDto[] {
     return users.map((user) => this.toResponse(user));
   }
 }

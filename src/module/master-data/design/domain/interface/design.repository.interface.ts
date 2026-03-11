@@ -1,16 +1,17 @@
+import { DesignRow } from '../../repository/design.row';
 import { Design } from '../design.entity';
 
-export const DESIGN_REPOSITORY = 'DESIGN_REPOSITORY';
+export const DESIGN_REPOSITORY = Symbol('DESIGN_REPOSITORY');
 
 export interface IDesignRepository {
-  getAllDesign(): Promise<Design[]>;
-  isDesignExist(design: Pick<Design, 'name'>): Promise<boolean>;
-  createDesign(design: Omit<Design, 'id'>, userId: string): Promise<Design>;
-  getDesignById(id: string | bigint): Promise<Design | undefined>;
+  findAllDesigns(): Promise<DesignRow[]>;
+  existsDesignByName(name: string): Promise<boolean>;
+  createDesign(design: Design, createdBy: string): Promise<DesignRow>;
+  findDesignById(id: string): Promise<DesignRow | undefined>;
   updateDesignById(
-    id: string | bigint,
-    design: Partial<Omit<Design, 'id'>>,
-    userId: string,
-  ): Promise<Design | undefined>;
-  deleteDesignById(id: string | bigint): Promise<boolean>;
+    id: string,
+    design: Partial<Design>,
+    updatedBy: string,
+  ): Promise<DesignRow | undefined>;
+  deleteDesignById(id: string): Promise<boolean>;
 }

@@ -1,10 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
+import { PartialType, PickType } from '@nestjs/mapped-types';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
   IsNumber,
   IsNumberString,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 // Request Create Product
@@ -26,8 +28,9 @@ export class ProductCreateRequestDto {
   sellingPrice: number;
 }
 
+// Request Update Product
 export class ProductUpdateRequestDto extends PartialType(
-  ProductCreateRequestDto,
+  PickType(ProductCreateRequestDto, ['name', 'sellingPrice'] as const),
 ) {}
 
 // Request Add Product Variant (Stock)
@@ -38,10 +41,12 @@ export class ProductVariantDto {
 
   @IsNumber()
   @IsNotEmpty()
-  quantity: number;
+  quantityStock: number;
 }
 
 export class ProductVariantCreateRequestDto {
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductVariantDto)
   stock: ProductVariantDto[];
 }

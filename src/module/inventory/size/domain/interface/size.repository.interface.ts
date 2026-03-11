@@ -1,33 +1,19 @@
-import { TransactionContext } from 'src/shared/database/transaction/transaction-manager.interface';
-import { SizeGroup } from '../size-group.entity';
-import { Size } from '../size.entity';
+import { SizeRow } from '../../repository/size.row';
+import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
 
 export const SIZE_REPOSITORY = Symbol('ISizeRepository');
 
 export interface ISizeRepository {
-  getAllSizeGroup(): Promise<SizeGroup[]>;
-  isSizeGroupExist(groupName: string): Promise<boolean>;
-  createSizeGroup(
-    groupName: string,
-    userId: string,
-    context?: TransactionContext,
-  ): Promise<SizeGroup>;
   createSizes(
     sizeGroupId: string,
     sizes: string[],
-    userId: string,
-    context?: TransactionContext,
-  ): Promise<Size[]>;
-  getSizeGroupById(id: string | bigint): Promise<SizeGroup | undefined>;
-  updateSizeGroupById(
-    id: string,
-    userId: string,
-    groupName: string,
-  ): Promise<SizeGroup | undefined>;
+    createdBy: string,
+    context?: PgTransactionContext,
+  ): Promise<SizeRow[]>;
+
   deleteSizesBySizeGroupId(
-    id: string,
+    sizeGroupid: string,
     softDelete: boolean,
-    context?: TransactionContext,
+    context?: PgTransactionContext,
   ): Promise<boolean>;
-  deleteSizeGroupById(id: string): Promise<boolean>;
 }

@@ -1,13 +1,29 @@
-import { ProductVariant } from './product-variant.entity';
-
 export class Product {
   constructor(
-    public id: string,
-    public designReferenceImageUrl: string,
-    public designCategory: string,
-    public sizeGroupName: string,
+    public designId: string | number,
+    public sizeGroupId: string | number,
     public name: string,
     public sellingPrice: number,
-    public variants: ProductVariant[] = [],
   ) {}
+
+  static create(params: {
+    designId: string | number;
+    sizeGroupId: string | number;
+    name: string;
+    sellingPrice: number;
+  }): Product {
+    return new Product(
+      params.designId,
+      params.sizeGroupId,
+      params.name,
+      params.sellingPrice,
+    );
+  }
+
+  static update(params: {
+    name?: string;
+    sellingPrice?: number;
+  }): Partial<Product> {
+    return params;
+  }
 }

@@ -1,19 +1,19 @@
-import { Design } from '../domain/design.entity';
 import { DesignResponseDto } from '../dto/response/design.response.dto';
+import { DesignRow } from '../repository/design.row';
 
 export class DesignMapper {
-  static toResponse(design: Design): DesignResponseDto {
+  static toResponse(design: DesignRow): DesignResponseDto {
     return {
       id: design.id,
-      name: design.name,
-      description: design.description,
-      category: design.category,
-      referenceImage: design.referenceImage,
-      basePrice: design.basePrice,
+      name: design.design_name,
+      description: design.design_description,
+      category: design.design_category,
+      referenceImage: design.reference_image_url,
+      basePrice: design.base_price_estimation,
     };
   }
 
-  static toResponseList(designs: Design[]): DesignResponseDto[] {
+  static toResponseList(designs: DesignRow[]): DesignResponseDto[] {
     return designs.map((design) => this.toResponse(design));
   }
 }

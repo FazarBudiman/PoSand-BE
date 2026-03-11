@@ -1,8 +1,8 @@
 import { PartialType } from '@nestjs/mapped-types';
 import {
   IsNotEmpty,
-  IsNumber,
   IsNumberString,
+  IsOptional,
   IsString,
 } from 'class-validator';
 
@@ -12,28 +12,18 @@ export class DesignCreateRequestDto {
   name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   description: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   category: string;
 
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   basePrice: number;
-
-  @IsString()
-  @IsNotEmpty()
-  referenceImage: string;
 }
 
 export class DesignUpdateRequestDto extends PartialType(
   DesignCreateRequestDto,
 ) {}
-
-export class ParamsDesignRequestDto {
-  @IsNumberString()
-  @IsNotEmpty()
-  id: string;
-}

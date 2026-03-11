@@ -11,6 +11,7 @@ import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
 import { ProductMapper } from '../mapper/product.mapper';
 import {
   ProductCreateRequestDto,
+  ProductUpdateRequestDto,
   ProductVariantCreateRequestDto,
 } from '../dto/request/product.request';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
@@ -38,8 +39,8 @@ export class ProductController {
 
   @Get()
   @RequirePermissions('product:read')
-  async getAllProduct() {
-    const products = await this.productService.getAllProduct();
+  async findAllProducts() {
+    const products = await this.productService.findAllProducts();
     return {
       data: ProductMapper.toResponseList(products),
     };
@@ -47,8 +48,8 @@ export class ProductController {
 
   @Get('/:id')
   @RequirePermissions('product:read')
-  async getProductById(@Param('id') id: string) {
-    const product = await this.productService.getProductById(id);
+  async findProductById(@Param('id') id: string) {
+    const product = await this.productService.findProductById(id);
     return {
       data: ProductMapper.toResponse(product),
     };
@@ -73,10 +74,11 @@ export class ProductController {
 
   @Get('/:id/stock')
   @RequirePermissions('product:read')
-  async getProductStockById(@Param('id') id: string) {
-    const product = await this.productService.getHistoryStockProductById(id);
+  async findStockHistoryByProductId(@Param('id') id: string) {
+    const productStocks =
+      await this.productService.findStockHistoryByProductId(id);
     return {
-      data: ProductStockMapper.toResponseList(product),
+      data: ProductStockMapper.toResponseList(productStocks),
     };
   }
 
@@ -84,7 +86,7 @@ export class ProductController {
   @RequirePermissions('product:update')
   async updateProduct(
     @Param('id') id: string,
-    @Body() body: Pick<ProductCreateRequestDto, 'name' | 'sellingPrice'>,
+    @Body() body: ProductUpdateRequestDto,
     @CurrentUser('sub') userWhoUpdated: string,
   ) {
     const product = await this.productService.updateProductById(

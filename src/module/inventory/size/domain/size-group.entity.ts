@@ -1,9 +1,10 @@
-import { Size } from './size.entity';
-
 export class SizeGroup {
   constructor(
-    public id: string,
     public groupName: string,
-    public sizes: Size[],
+    public sizes: string[],
   ) {}
+
+  static create(params: { groupName: string; sizes: string[] }): SizeGroup {
+    return new SizeGroup(params.groupName, params.sizes);
+  }
 }
