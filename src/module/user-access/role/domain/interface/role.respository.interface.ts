@@ -1,16 +1,23 @@
-import { Permission } from '../permission.entity';
-import { Role } from '../role.entity';
+import { RoleRow } from '../../repository/role.row';
+import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
 
-export const ROLE_REPOSITORY = 'ROLE_REPOSITORY';
+export const ROLE_REPOSITORY = Symbol('ROLE_REPOSITORY');
 
 export interface IRoleRepository {
-  getAllPermission(): Promise<Permission[]>;
-  getAllRole(): Promise<Role[]>;
-  getRoleById(id: string | bigint): Promise<Role | undefined>;
-  isRoleNameExist(roleName: string): Promise<boolean>;
-  create(role: Role): Promise<Role>;
-  updateRoleName(role: Pick<Role, 'id' | 'roleName'>): Promise<Role>;
-  updateRolePermissions(role: Pick<Role, 'id' | 'permissions'>): Promise<Role>;
-  deleteRoleById(id: string | bigint): Promise<boolean>;
-  getRoleIsAssignByUser(roleId: string | bigint): Promise<boolean>;
+  findAllRoles(): Promise<RoleRow[]>;
+
+  findRoleById(id: string): Promise<RoleRow | undefined>;
+
+  existsRoleByName(roleName: string): Promise<boolean>;
+
+  createRole(
+    roleName: string,
+    txContext?: PgTransactionContext,
+  ): Promise<RoleRow>;
+
+  updateRoleName(id: string, roleName: string): Promise<RoleRow | undefined>;
+
+  deleteRoleById(id: string): Promise<boolean>;
+
+  isRoleAssignedToUser(roleId: string): Promise<boolean>;
 }

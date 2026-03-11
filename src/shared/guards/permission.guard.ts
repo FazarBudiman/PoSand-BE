@@ -29,6 +29,7 @@ export class PermissionGuard implements CanActivate {
     if (!user?.permissions) {
       throw new ForbiddenException('Permission tidak ditemukan');
     }
+    // console.log(user);
 
     const hasPermission = requiredPermissions.every((permission) =>
       user.permissions.includes(permission),

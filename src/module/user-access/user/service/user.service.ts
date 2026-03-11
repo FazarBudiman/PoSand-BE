@@ -7,10 +7,10 @@ import { User } from '../domain/user.entity';
 import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
 import {
   CreateUserRequestDto,
-  ParamUserRequestDto,
   PatchUserRequestDto,
 } from '../dto/request/user.request.dto';
 import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { UserRow } from '../repository/user.row';
 
 @Injectable()
 export class UserService {
@@ -22,11 +22,11 @@ export class UserService {
     private readonly passwordRepository: IPasswordRepository,
   ) {}
 
-  async create(body: CreateUserRequestDto): Promise<User> {
-    const isUsernameExist = await this.userRepository.isUsernameExist({
-      username: body.username,
-    });
-
+  // Create User
+  async createUser(body: CreateUserRequestDto): Promise<UserRow> {
+    const isUsernameExist = await this.userRepository.existsUserByUsername(
+      body.username,
+    );
     if (isUsernameExist) {
       throw new ConflictException(
         'Username sudah digunakan',
@@ -35,39 +35,45 @@ export class UserService {
     }
     const passwordHash = await this.passwordRepository.hash(body.password);
 
-    return await this.userRepository.create({
+    const user = User.create({
       fullname: body.fullname,
       username: body.username,
-      password: passwordHash,
+      passwordHash: passwordHash,
       roleId: body.roleId,
     });
+
+    return this.userRepository.createUser(user);
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return await this.userRepository.getAll();
+  // Find All Users
+  async findAllUsers(): Promise<UserRow[]> {
+    return this.userRepository.findAllUsers();
   }
 
-  async getUserById(params: ParamUserRequestDto): Promise<User> {
-    const user = await this.userRepository.getUserById(params.id);
+  // Find User by Id
+  async findUserById(id: string): Promise<UserRow> {
+    const user = await this.userRepository.findUserById(id);
     if (!user) {
       throw new NotFoundException('User tidak ditemukan', 'RESOURCE_NOT_FOUND');
     }
     return user;
   }
 
+  // Update User by Id
   async updateUserById(
-    params: ParamUserRequestDto,
+    id: string,
     body: PatchUserRequestDto,
-  ): Promise<User> {
-    const user = await this.userRepository.updateUserById(params.id, body);
+  ): Promise<UserRow> {
+    const user = await this.userRepository.updateUserById(id, body);
     if (!user) {
       throw new NotFoundException('User tidak ditemukan', 'RESOURCE_NOT_FOUND');
     }
     return user;
   }
 
-  async deleteUserById(params: ParamUserRequestDto): Promise<void> {
-    const success = await this.userRepository.deleteUserById(params.id);
+  // Delete User by Id
+  async deleteUserById(id: string): Promise<void> {
+    const success = await this.userRepository.deleteUserById(id);
     if (!success) {
       throw new NotFoundException('User tidak ditemukan', 'RESOURCE_NOT_FOUND');
     }

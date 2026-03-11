@@ -1,7 +1,4 @@
-export class PermissionResponseDto {
-  id: string;
-  permissionName: string;
-}
+import { PermissionResponseDto } from './permission.response.dto';
 
 export class RoleResponseDto {
   id: string;

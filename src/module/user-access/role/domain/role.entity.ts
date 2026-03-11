@@ -1,9 +1,10 @@
-import { Permission } from './permission.entity';
-
 export class Role {
   constructor(
-    public readonly id: string,
     public readonly roleName: string,
-    public readonly permissions: Permission[],
+    public readonly permissions: string[],
   ) {}
+
+  static create(params: { roleName: string; permissions: string[] }): Role {
+    return new Role(params.roleName, params.permissions);
+  }
 }

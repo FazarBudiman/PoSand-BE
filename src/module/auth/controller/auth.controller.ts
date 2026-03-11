@@ -9,10 +9,12 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 
-import { SignInDto } from '../dto/signin.dto';
+import { SignInDto } from '../dto/request/signin.dto';
 import { AuthService } from '../service/auth.service';
 import { JwtPayload } from 'src/shared/types/jwt-payload.type';
 import { Public } from 'src/shared/decorators/public.decorator';
+import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { AuthenticatedMapper } from '../mapper/authenticated.mapper';
 
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
@@ -99,18 +101,11 @@ export class AuthController {
   }
 
   @Get('me')
-  getMe(@Req() req: RequestWithCookies) {
-    if (!req.user)
-      throw new UnauthorizedException({
-        message: 'Token tidak ditemukan',
-        errorCode: 'INVALID_TOKEN',
-      });
-
+  async getMe(@CurrentUser('username') username: string) {
+    const authenticatedUser =
+      await this.authService.getAuthenticatedUser(username);
     return {
-      id: req.user.sub,
-      username: req.user.username,
-      roleId: req.user.roleId,
-      permissions: req.user.permissions,
+      data: AuthenticatedMapper.toResponse(authenticatedUser),
     };
   }
 }

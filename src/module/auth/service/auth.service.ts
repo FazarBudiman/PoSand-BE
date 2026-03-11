@@ -25,6 +25,7 @@ export class AuthService {
     private readonly tokenRepository: ITokenRepository,
   ) {}
 
+  // Sign In
   async signIn(username: string, password: string) {
     const user = await this.authRepository.findByUsername(username);
 
@@ -34,7 +35,7 @@ export class AuthService {
         'INVALID_CREDENTIALS',
       );
 
-    if (!user.isActive)
+    if (!user.is_active)
       throw new ForbiddenException({
         message: 'Akun tidak aktif',
         errorCode: 'ACCOUNT_INACTIVE',
@@ -42,7 +43,7 @@ export class AuthService {
 
     const isValid = await this.passwordRepository.compare(
       password,
-      user.password,
+      user.password_hash,
     );
 
     if (!isValid)
@@ -51,10 +52,12 @@ export class AuthService {
         'INVALID_CREDENTIALS',
       );
 
+    // console.log(user);
+
     const payload = {
       sub: user.id,
       username: user.username,
-      roleId: user.roleId,
+      roleId: user.role_id,
       permissions: user.permissions,
     };
 
@@ -76,6 +79,7 @@ export class AuthService {
     };
   }
 
+  // Refresh Token
   async refresh(token: string) {
     try {
       const payload: JwtPayload = this.tokenRepository.verify(token);
@@ -117,6 +121,16 @@ export class AuthService {
     }
   }
 
+  // Get Authenticated User
+  async getAuthenticatedUser(username: string) {
+    const user = await this.authRepository.findByUsername(username);
+    if (!user)
+      throw new UnauthorizedException('User belum login', 'UNAUTHORIZED');
+
+    return user;
+  }
+
+  // Logout
   async logout(token: string) {
     await this.tokenRepository.deleteRefreshToken(token);
   }

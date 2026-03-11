@@ -3,47 +3,21 @@ import { IUserRepository } from '../domain/interfaces/user.repository.interface'
 import { PG_POOL } from 'src/shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { User } from '../domain/user.entity';
-
-interface UserRow {
-  id: string;
-  full_name: string;
-  username?: string;
-  password_hash?: string;
-  role_id?: string;
-  is_active?: boolean;
-  role_name?: string;
-  permission_name?: string[];
-}
-
-function mapToEntity(row: UserRow): User {
-  return new User(
-    row.id,
-    row.full_name,
-    row.username ?? '',
-    row.password_hash ?? '',
-    row.role_id ?? '',
-    row.is_active ?? false,
-    row.permission_name ?? [],
-    row.role_name ?? '',
-  );
-}
+import { UserRow } from './user.row';
 
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async isUsernameExist(user: Pick<User, 'username'>): Promise<boolean> {
+  async existsUserByUsername(username: string): Promise<boolean> {
     const { rows } = await this.pool.query<{ exists: boolean }>(
-      `SELECT EXISTS(SELECT 1  FROM users u WHERE u.username = $1)`,
-      [user.username],
+      `SELECT EXISTS(SELECT 1 FROM users u WHERE u.username = $1)`,
+      [username],
     );
-
     return rows[0].exists;
   }
 
-  async create(
-    user: Pick<User, 'fullname' | 'username' | 'password' | 'roleId'>,
-  ): Promise<User> {
+  async createUser(user: User): Promise<UserRow> {
     const { rows } = await this.pool.query<UserRow>(
       `WITH inserted AS (
         INSERT INTO users (full_name, username, password_hash, role_id) 
@@ -59,11 +33,10 @@ export class UserRepository implements IUserRepository {
       GROUP BY i.id, i.full_name, i.username, i.password_hash, i.role_id, i.is_active, r.role_name`,
       [user.fullname, user.username, user.password, user.roleId],
     );
-
-    return mapToEntity(rows[0]);
+    return rows[0];
   }
 
-  async getAll(): Promise<User[]> {
+  async findAllUsers(): Promise<UserRow[]> {
     const { rows } = await this.pool.query<UserRow>(`
       SELECT 
         u.id, 
@@ -81,11 +54,10 @@ export class UserRepository implements IUserRepository {
       WHERE u.is_deleted = false
       GROUP BY u.id, r.role_name
       `);
-
-    return rows.map((row) => mapToEntity(row));
+    return rows;
   }
 
-  async getUserById(id: string | bigint): Promise<User | undefined> {
+  async findUserById(id: string): Promise<UserRow | undefined> {
     const { rows } = await this.pool.query<UserRow>(
       `SELECT 
         u.id, 
@@ -104,16 +76,14 @@ export class UserRepository implements IUserRepository {
       GROUP BY u.id, r.role_name`,
       [id],
     );
-
     if (rows.length === 0) return undefined;
-
-    return mapToEntity(rows[0]);
+    return rows[0];
   }
 
   async updateUserById(
-    id: string | bigint,
-    user: Partial<Pick<User, 'roleId' | 'isActive'>>,
-  ): Promise<User | undefined> {
+    id: string,
+    user: Partial<User>,
+  ): Promise<UserRow | undefined> {
     const values: any[] = [];
     let query = `UPDATE users SET`;
     let index = 1;
@@ -122,7 +92,7 @@ export class UserRepository implements IUserRepository {
       query += ` role_id = $${index++},`;
       values.push(user.roleId);
     }
-    if (user.isActive) {
+    if (user.isActive !== undefined) {
       query += ` is_active = $${index++},`;
       values.push(user.isActive);
     }
@@ -144,18 +114,15 @@ export class UserRepository implements IUserRepository {
     `;
 
     const { rows } = await this.pool.query<UserRow>(fullQuery, values);
-
     if (rows.length === 0) return undefined;
-
-    return mapToEntity(rows[0]);
+    return rows[0];
   }
 
-  async deleteUserById(id: string | bigint): Promise<boolean> {
+  async deleteUserById(id: string): Promise<boolean> {
     const { rowCount } = await this.pool.query(
       `UPDATE users SET is_deleted = true, is_active = false WHERE id = $1 AND is_deleted = false RETURNING id`,
       [id],
     );
-
     return rowCount !== null && rowCount > 0;
   }
 }
