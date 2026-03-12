@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { CurrentUser } from '../../../shared/decorators/current-user.decorator';
 import { SaleService } from '../service/sale.service';
 import { SalePaymentService } from '../service/sale-payment.service';
 import { SaleReceiptService } from '../service/sale-receipt.service';

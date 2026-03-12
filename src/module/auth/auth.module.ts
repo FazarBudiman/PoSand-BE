@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'src/shared/database/database.module';
+import { DatabaseModule } from '../../shared/database/database.module';
 import { AuthService } from './service/auth.service';
 import { AuthController } from './controller/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
@@ -11,8 +11,8 @@ import { ConfigService } from '@nestjs/config';
 import { UserModule } from '../user-access/user/user.module';
 import { AUTH_REPOSITORY } from './domain/interface/auth.repository.interface';
 import { AuthRepository } from './repository/auth.repository';
-import { JwtAuthGuard } from 'src/shared/guards/jwt-auth.guard';
-import { PermissionGuard } from 'src/shared/guards/permission.guard';
+import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
+import { PermissionGuard } from '../../shared/guards/permission.guard';
 
 @Module({
   imports: [

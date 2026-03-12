@@ -1,17 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CUSTOMER_REPOSITORY } from 'src/module/master-data/customer/domain/interface/customer.repository.interface';
-import type { ICustomerRepository } from 'src/module/master-data/customer/domain/interface/customer.repository.interface';
-import { PRODUCT_VARIANT_REPOSITORY } from 'src/module/inventory/product/domain/interface/product-variant.repository.interface';
-import type { IProductVariantRepository } from 'src/module/inventory/product/domain/interface/product-variant.repository.interface';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
-import { ConflictException } from 'src/shared/exceptions/conflict.exception';
-import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
+import { CUSTOMER_REPOSITORY } from '../../master-data/customer/domain/interface/customer.repository.interface';
+import type { ICustomerRepository } from '../../master-data/customer/domain/interface/customer.repository.interface';
+import { PRODUCT_VARIANT_REPOSITORY } from '../../inventory/product/domain/interface/product-variant.repository.interface';
+import type { IProductVariantRepository } from '../../inventory/product/domain/interface/product-variant.repository.interface';
+import { NotFoundException } from '../../../shared/exceptions/not-found.exception';
+import { ConflictException } from '../../../shared/exceptions/conflict.exception';
+import { TRANSACTION_MANAGER } from '../../../shared/database/tokens/transaction.token';
 import {
   PgTransactionContext,
   PgTransactionManager,
-} from 'src/shared/database/transaction/pg-transaction.manager';
-import { STOCK_MOVEMENT_REPOSITORY } from 'src/module/inventory/product/domain/interface/stock-movement.repository.interface';
-import type { IStockMovementRepository } from 'src/module/inventory/product/domain/interface/stock-movement.repository.interface';
+} from '../../../shared/database/transaction/pg-transaction.manager';
+import { STOCK_MOVEMENT_REPOSITORY } from '../../inventory/product/domain/interface/stock-movement.repository.interface';
+import type { IStockMovementRepository } from '../../inventory/product/domain/interface/stock-movement.repository.interface';
 import { SALE_REPOSITORY } from '../domain/interface/sale.repository.interface';
 import type { ISaleRepository } from '../domain/interface/sale.repository.interface';
 import { SALE_ITEM_REPOSITORY } from '../domain/interface/sale-item.repository.interface';

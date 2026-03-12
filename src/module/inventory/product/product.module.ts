@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'src/shared/database/database.module';
+import { DatabaseModule } from '../../../shared/database/database.module';
 import { ProductService } from './service/product.service';
 import { PRODUCT_REPOSITORY } from './domain/interface/product.repository.interface';
 import { ProductRepository } from './repository/product.repository';
