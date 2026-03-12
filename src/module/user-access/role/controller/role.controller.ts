@@ -18,11 +18,22 @@ import {
 } from '../dto/request/role.request.dto';
 import { PermissionMapper } from '../mapper/permission.mapper';
 import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
+import {
+  ApiCreateRole,
+  ApiDeleteRole,
+  ApiFindAllPermissions,
+  ApiFindAllRoles,
+  ApiFindRoleById,
+  ApiRole,
+  ApiUpdateRole,
+} from '../doc/role.doc';
 
+@ApiRole()
 @Controller('roles')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
+  @ApiFindAllPermissions()
   @RequirePermissions('role:manage')
   @Get('/permissions')
   async findAllPermissions() {
@@ -32,6 +43,7 @@ export class RoleController {
     };
   }
 
+  @ApiFindAllRoles()
   @RequirePermissions('role:manage')
   @Get('/')
   async findAllRoles() {
@@ -41,6 +53,7 @@ export class RoleController {
     };
   }
 
+  @ApiFindRoleById()
   @RequirePermissions('role:manage')
   @Get('/:id')
   async findRoleById(@Param('id') id: string) {
@@ -50,6 +63,7 @@ export class RoleController {
     };
   }
 
+  @ApiCreateRole()
   @RequirePermissions('role:manage')
   @Post('/')
   async createRole(@Body() body: CreateRoleRequestDto) {
@@ -59,6 +73,7 @@ export class RoleController {
     };
   }
 
+  @ApiUpdateRole()
   @RequirePermissions('role:manage')
   @Patch('/:id')
   async updateRole(
@@ -71,6 +86,7 @@ export class RoleController {
     };
   }
 
+  @ApiDeleteRole()
   @RequirePermissions('role:manage')
   @Delete('/:id')
   async deleteRole(@Param('id') id: string) {

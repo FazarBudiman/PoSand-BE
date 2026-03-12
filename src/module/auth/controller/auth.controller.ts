@@ -15,16 +15,25 @@ import { JwtPayload } from 'src/shared/types/jwt-payload.type';
 import { Public } from 'src/shared/decorators/public.decorator';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 import { AuthenticatedMapper } from '../mapper/authenticated.mapper';
+import {
+  ApiAuth,
+  ApiGetMe,
+  ApiLogout,
+  ApiRefresh,
+  ApiSignIn,
+} from '../doc/auth.doc';
 
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
   user?: JwtPayload;
 }
 
+@ApiAuth()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiSignIn()
   @Public()
   @Post('login')
   async signIn(
@@ -53,6 +62,7 @@ export class AuthController {
     return { message: 'Login berhasil' };
   }
 
+  @ApiRefresh()
   @Post('refresh')
   async refresh(
     @Req() req: RequestWithCookies,
@@ -85,6 +95,7 @@ export class AuthController {
     return { message: 'Token refreshed' };
   }
 
+  @ApiLogout()
   @Post('logout')
   async logout(
     @Req() req: RequestWithCookies,
@@ -100,6 +111,7 @@ export class AuthController {
     return { message: 'Logout berhasil' };
   }
 
+  @ApiGetMe()
   @Get('me')
   async getMe(@CurrentUser('username') username: string) {
     const authenticatedUser =

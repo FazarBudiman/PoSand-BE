@@ -7,7 +7,15 @@ import { SaleReceiptService } from '../service/sale-receipt.service';
 import { CreateSaleRequestDto } from '../dto/request/sale.request.dto';
 import { SaleMapper } from '../mapper/sale.mapper';
 import { CreateSalePaymentRequestDto } from '../dto/request/sale-payment.request.dto';
+import {
+  ApiCreateSale,
+  ApiCreateSalePayment,
+  ApiFindAllSales,
+  ApiGetSaleReceipt,
+  ApiSale,
+} from '../doc/sale.doc';
 
+@ApiSale()
 @Controller('sales')
 export class SaleController {
   constructor(
@@ -16,6 +24,7 @@ export class SaleController {
     private readonly saleReceiptService: SaleReceiptService,
   ) {}
 
+  @ApiCreateSale()
   @Post()
   async createSale(
     @Body() request: CreateSaleRequestDto,
@@ -27,6 +36,7 @@ export class SaleController {
     };
   }
 
+  @ApiFindAllSales()
   @Get()
   async findAll() {
     const sales = await this.saleService.findAllSales();
@@ -35,6 +45,7 @@ export class SaleController {
     };
   }
 
+  @ApiCreateSalePayment()
   @Post('/:id/payments')
   async createPayment(
     @Param('id') id: string,
@@ -51,6 +62,7 @@ export class SaleController {
     };
   }
 
+  @ApiGetSaleReceipt()
   @Get('/:id')
   async getSaleReceipt(
     @Param('id') id: string,

@@ -22,29 +22,41 @@ import {
 } from '../dto/request/design.request.dto';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
 
+import {
+  ApiCreateDesign,
+  ApiDeleteDesign,
+  ApiDesign,
+  ApiFindAllDesigns,
+  ApiFindDesignById,
+  ApiUpdateDesign,
+} from '../doc/design.doc';
+
 interface MulterFile {
   originalname: string;
   buffer: Buffer;
   mimetype: string;
 }
 
+@ApiDesign()
 @Controller('designs')
 export class DesignController {
   constructor(private readonly designService: DesignService) {}
 
+  @ApiFindAllDesigns()
   @Get()
   @RequirePermissions('product:read')
-  async findAllDesigns() {
+  async findAll() {
     const designs = await this.designService.findAllDesigns();
     return {
       data: DesignMapper.toResponseList(designs),
     };
   }
 
+  @ApiCreateDesign()
   @Post()
   @RequirePermissions('product:create')
   @UseInterceptors(FileInterceptor('referenceImage'))
-  async createDesign(
+  async create(
     @Body() body: DesignCreateRequestDto,
     @CurrentUser('sub') userId: string,
     @UploadedFile(
@@ -67,18 +79,20 @@ export class DesignController {
     };
   }
 
-  @Get(':id')
+  @ApiFindDesignById()
+  @Get('/:id')
   @RequirePermissions('product:read')
-  async findDesignById(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     const design = await this.designService.findDesignById(id);
     return {
       data: DesignMapper.toResponse(design),
     };
   }
 
-  @Patch(':id')
+  @ApiUpdateDesign()
+  @Patch('/:id')
   @RequirePermissions('product:update')
-  async updateDesign(
+  async update(
     @Param('id') id: string,
     @Body() body: DesignUpdateRequestDto,
     @CurrentUser('sub') userId: string,
@@ -93,9 +107,10 @@ export class DesignController {
     };
   }
 
-  @Delete(':id')
+  @ApiDeleteDesign()
+  @Delete('/:id')
   @RequirePermissions('product:delete')
-  async deleteDesign(@Param('id') id: string) {
+  async delete(@Param('id') id: string) {
     await this.designService.deleteDesignById(id);
     return {
       message: 'Design deleted successfully',
