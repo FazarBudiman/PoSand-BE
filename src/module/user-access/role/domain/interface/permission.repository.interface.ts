@@ -1,4 +1,4 @@
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../../shared/database/transaction/pg-transaction.manager';
 import { PermissionRow } from '../../repository/permission.row';
 
 export const PERMISSION_REPOSITORY = Symbol('PERMISSION_REPOSITORY');

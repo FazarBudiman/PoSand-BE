@@ -17,7 +17,7 @@ import {
   // UpdateRoleRequestDto,
 } from '../dto/request/role.request.dto';
 import { PermissionMapper } from '../mapper/permission.mapper';
-import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
+import { RequirePermissions } from '../../../../shared/decorators/permission.decorator';
 import {
   ApiCreateRole,
   ApiDeleteRole,

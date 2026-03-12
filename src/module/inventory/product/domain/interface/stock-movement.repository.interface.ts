@@ -1,5 +1,5 @@
 import { ProductVariantRow } from '../../repository/product-variant.row';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../../shared/database/transaction/pg-transaction.manager';
 
 export const STOCK_MOVEMENT_REPOSITORY = Symbol('IStockMovementRepository');
 

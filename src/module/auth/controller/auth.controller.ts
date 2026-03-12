@@ -11,9 +11,9 @@ import type { Response } from 'express';
 
 import { SignInDto } from '../dto/request/signin.dto';
 import { AuthService } from '../service/auth.service';
-import { JwtPayload } from 'src/shared/types/jwt-payload.type';
-import { Public } from 'src/shared/decorators/public.decorator';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { JwtPayload } from '../../../shared/types/jwt-payload.type';
+import { Public } from '../../../shared/decorators/public.decorator';
+import { CurrentUser } from '../../../shared/decorators/current-user.decorator';
 import { AuthenticatedMapper } from '../mapper/authenticated.mapper';
 import {
   ApiAuth,

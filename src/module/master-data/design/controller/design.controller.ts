@@ -14,13 +14,13 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { DesignService } from '../service/design.service';
-import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
+import { RequirePermissions } from '../../../../shared/decorators/permission.decorator';
 import { DesignMapper } from '../mapper/design.mapper';
 import {
   DesignCreateRequestDto,
   DesignUpdateRequestDto,
 } from '../dto/request/design.request.dto';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
 
 import {
   ApiCreateDesign,

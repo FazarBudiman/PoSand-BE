@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
-import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
-import type { ITransactionManager } from 'src/shared/database/transaction/transaction-manager.interface';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { NotFoundException } from '../../../shared/exceptions/not-found.exception';
+import { TRANSACTION_MANAGER } from '../../../shared/database/tokens/transaction.token';
+import type { ITransactionManager } from '../../../shared/database/transaction/transaction-manager.interface';
+import { PgTransactionContext } from '../../../shared/database/transaction/pg-transaction.manager';
 import { SALE_RECEIPT_REPOSITORY } from '../domain/interface/sale-receipt.repository.interface';
 import type { ISaleReceiptRepository } from '../domain/interface/sale-receipt.repository.interface';
 import { SaleReceiptResponseDto } from '../dto/response/sale-receipt.response.dto';

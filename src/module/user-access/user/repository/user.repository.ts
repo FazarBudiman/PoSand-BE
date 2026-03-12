@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IUserRepository } from '../domain/interfaces/user.repository.interface';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { User } from '../domain/user.entity';
 import { UserRow } from './user.row';

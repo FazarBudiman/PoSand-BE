@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ICustomerRepository } from '../domain/interface/customer.repository.interface';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { Customer } from '../domain/customer.entity';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
 import { CustomerRow } from './customer.row';
 
 @Injectable()

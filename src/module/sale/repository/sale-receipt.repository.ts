@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PG_POOL } from '../../../shared/database/tokens/pg.token';
+import { PgTransactionContext } from '../../../shared/database/transaction/pg-transaction.manager';
 import { ISaleReceiptRepository } from '../domain/interface/sale-receipt.repository.interface';
 import { SaleReceiptResponseDto } from '../dto/response/sale-receipt.response.dto';
 

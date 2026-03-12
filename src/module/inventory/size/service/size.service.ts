@@ -2,18 +2,18 @@ import { SIZE_REPOSITORY } from '../domain/interface/size.repository.interface';
 import type { ISizeRepository } from '../domain/interface/size.repository.interface';
 import { Inject, Injectable } from '@nestjs/common';
 import { SizeGroup } from '../domain/size-group.entity';
-import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
-import type { ITransactionManager } from 'src/shared/database/transaction/transaction-manager.interface';
+import { TRANSACTION_MANAGER } from '../../../../shared/database/tokens/transaction.token';
+import type { ITransactionManager } from '../../../../shared/database/transaction/transaction-manager.interface';
 import {
   SizeCreateRequestDto,
   SizeUpdateRequestDto,
 } from '../dto/request/size.request';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
-import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { NotFoundException } from '../../../../shared/exceptions/not-found.exception';
+import { ConflictException } from '../../../../shared/exceptions/conflict.exception';
 import { SizeGroupRow } from '../repository/size-group.row';
 import { SIZE_GROUP_REPOSITORY } from '../domain/interface/size-group.repository.interface';
 import type { ISizeGroupRepository } from '../domain/interface/size-group.repository.interface';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
 
 @Injectable()
 export class SizeService {

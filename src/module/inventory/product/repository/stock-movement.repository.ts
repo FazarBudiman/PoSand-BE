@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
-import { MovementType } from 'src/shared/types/movement-type.enum';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
+import { MovementType } from '../../../../shared/types/movement-type.enum';
 import { IStockMovementRepository } from '../domain/interface/stock-movement.repository.interface';
 import { ProductVariantRow } from './product-variant.row';
 

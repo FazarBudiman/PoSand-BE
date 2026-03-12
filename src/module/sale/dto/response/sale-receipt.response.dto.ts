@@ -1,6 +1,6 @@
-import { PaymentType } from 'src/module/finance/payment/domain/type/payment-type';
+import { PaymentType } from '../../../finance/payment/domain/type/payment-type';
 import { DiscountType } from '../../domain/type/discount-type.enum';
-import { PaymentMethod } from 'src/module/finance/payment/domain/type/payment-method';
+import { PaymentMethod } from '../../../finance/payment/domain/type/payment-method';
 import { SaleStatus } from '../../domain/type/product-sale-status.enum';
 
 export class SaleReceiptResponseDto {

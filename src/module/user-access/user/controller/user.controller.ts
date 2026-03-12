@@ -13,7 +13,7 @@ import {
   PatchUserRequestDto,
 } from '../dto/request/user.request.dto';
 import { UserMapper } from '../mapper/user.mapper';
-import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
+import { RequirePermissions } from '../../../../shared/decorators/permission.decorator';
 import {
   ApiCreateUser,
   ApiDeleteUser,

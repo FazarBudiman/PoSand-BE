@@ -1,6 +1,6 @@
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../shared/database/transaction/pg-transaction.manager';
 import { Inject } from '@nestjs/common';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { Sale } from '../domain/sale.entity';
 import { ISaleRepository } from '../domain/interface/sale.repository.interface';

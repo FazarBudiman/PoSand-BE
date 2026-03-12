@@ -1,4 +1,4 @@
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../../shared/database/transaction/pg-transaction.manager';
 import { SizeGroupRow } from '../../repository/size-group.row';
 
 export const SIZE_GROUP_REPOSITORY = Symbol('ISizeRepository');

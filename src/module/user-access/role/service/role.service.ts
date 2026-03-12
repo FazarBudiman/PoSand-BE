@@ -2,16 +2,16 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ROLE_REPOSITORY } from '../domain/interface/role.respository.interface';
 import type { IRoleRepository } from '../domain/interface/role.respository.interface';
 import { Role } from '../domain/role.entity';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
+import { NotFoundException } from '../../../../shared/exceptions/not-found.exception';
 import {
   CreateRoleRequestDto,
   UpdateRoleRequestDto,
   // UpdateRoleRequestDto,
 } from '../dto/request/role.request.dto';
-import { ConflictException } from 'src/shared/exceptions/conflict.exception';
-import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
-import type { ITransactionManager } from 'src/shared/database/transaction/transaction-manager.interface';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { ConflictException } from '../../../../shared/exceptions/conflict.exception';
+import { TRANSACTION_MANAGER } from '../../../../shared/database/tokens/transaction.token';
+import type { ITransactionManager } from '../../../../shared/database/transaction/transaction-manager.interface';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
 import { PermissionRow } from '../repository/permission.row';
 import { PERMISSION_REPOSITORY } from '../domain/interface/permission.repository.interface';
 import type { IPermissionRepository } from '../domain/interface/permission.repository.interface';
