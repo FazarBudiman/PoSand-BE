@@ -46,9 +46,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  // Jika running lokal
+  // Jika running lokal (bukan Vercel)
   if (process.env.NODE_ENV !== 'production') {
     await app.listen(process.env.PORT ?? 5000);
+    console.log(
+      `Application is running on: http://localhost:${process.env.PORT ?? 5000}`,
+    );
   }
 
   return app.getHttpAdapter().getInstance() as Express;
@@ -59,3 +62,11 @@ export default async (req: any, res: any) => {
   const server = await bootstrap();
   server(req, res);
 };
+
+// Jalankan bootstrap jika tidak di production (lokal)
+if (process.env.NODE_ENV !== 'production') {
+  bootstrap().catch((err) => {
+    console.error('Failed to start application:', err);
+    process.exit(1);
+  });
+}

@@ -6,8 +6,8 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { TOKEN_REPOSITORY } from 'src/module/auth/domain/interface/token.repository.interface';
-import type { ITokenRepository } from 'src/module/auth/domain/interface/token.repository.interface';
+import { TOKEN_REPOSITORY } from '../../module/auth/domain/interface/token.repository.interface';
+import type { ITokenRepository } from '../../module/auth/domain/interface/token.repository.interface';
 import { JwtPayload } from '../types/jwt-payload.type';
 
 interface RequestWithCookies extends Request {

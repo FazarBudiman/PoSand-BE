@@ -1,15 +1,15 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { USER_REPOSITORY } from '../domain/interfaces/user.repository.interface';
 import type { IUserRepository } from '../domain/interfaces/user.repository.interface';
-import { PASSWORD_REPOSITORY } from 'src/module/auth/domain/interface/password.repository.interface';
-import type { IPasswordRepository } from 'src/module/auth/domain/interface/password.repository.interface';
+import { PASSWORD_REPOSITORY } from '../../../auth/domain/interface/password.repository.interface';
+import type { IPasswordRepository } from '../../../auth/domain/interface/password.repository.interface';
 import { User } from '../domain/user.entity';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
+import { NotFoundException } from '../../../../shared/exceptions/not-found.exception';
 import {
   CreateUserRequestDto,
   PatchUserRequestDto,
 } from '../dto/request/user.request.dto';
-import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { ConflictException } from '../../../../shared/exceptions/conflict.exception';
 import { UserRow } from '../repository/user.row';
 
 @Injectable()
