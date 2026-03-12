@@ -7,9 +7,14 @@ import { BadRequestException } from './shared/exceptions/bad-request.exception';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import { Express } from 'express';
+import { INestApplication } from '@nestjs/common';
 
-async function bootstrap() {
+let cachedServer: Express;
+
+async function bootstrap(): Promise<INestApplication> {
+  console.log('Bootstrapping application...');
   const app = await NestFactory.create(AppModule);
+  console.log('Nest application created.');
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -46,27 +51,32 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  // Jika running lokal (bukan Vercel)
-  if (process.env.NODE_ENV !== 'production') {
-    await app.listen(process.env.PORT ?? 5000);
-    console.log(
-      `Application is running on: http://localhost:${process.env.PORT ?? 5000}`,
-    );
-  }
+  console.log('Calling app.init()...');
+  await app.init();
+  console.log('app.init() finished.');
 
-  return app.getHttpAdapter().getInstance() as Express;
+  return app;
+}
+
+// Local start
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  bootstrap()
+    .then(async (app) => {
+      const port = process.env.PORT ?? 5000;
+      await app.listen(port);
+      console.log(`Application is running on: http://localhost:${port}`);
+    })
+    .catch((err) => {
+      console.error('Failed to start application:', err);
+      process.exit(1);
+    });
 }
 
 // Handler untuk Vercel
 export default async (req: any, res: any) => {
-  const server = await bootstrap();
-  server(req, res);
+  if (!cachedServer) {
+    const app = await bootstrap();
+    cachedServer = app.getHttpAdapter().getInstance();
+  }
+  return cachedServer(req, res);
 };
-
-// Jalankan bootstrap jika tidak di production (lokal)
-if (process.env.NODE_ENV !== 'production') {
-  bootstrap().catch((err) => {
-    console.error('Failed to start application:', err);
-    process.exit(1);
-  });
-}
