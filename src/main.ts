@@ -6,8 +6,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { BadRequestException } from './shared/exceptions/bad-request.exception';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
-import { Express } from 'express';
 import { INestApplication } from '@nestjs/common';
+import { VercelRequest, VercelResponse } from '@vercel/node';
+import { Express, Request, Response } from 'express';
 
 let cachedServer: Express;
 
@@ -49,7 +50,14 @@ async function bootstrap(): Promise<INestApplication> {
     .addCookieAuth('access_token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('api', app, document, {
+    customCssUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+    ],
+  });
 
   console.log('Calling app.init()...');
   await app.init();
@@ -61,7 +69,7 @@ async function bootstrap(): Promise<INestApplication> {
 // Local start
 if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
   bootstrap()
-    .then(async (app) => {
+    .then(async (app: INestApplication) => {
       const port = process.env.PORT ?? 5000;
       await app.listen(port);
       console.log(`Application is running on: http://localhost:${port}`);
@@ -73,10 +81,10 @@ if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
 }
 
 // Handler untuk Vercel
-export default async (req: any, res: any) => {
+export default async (req: VercelRequest, res: VercelResponse) => {
   if (!cachedServer) {
     const app = await bootstrap();
-    cachedServer = app.getHttpAdapter().getInstance();
+    cachedServer = app.getHttpAdapter().getInstance() as Express;
   }
-  return cachedServer(req, res);
+  cachedServer(req as unknown as Request, res as unknown as Response);
 };
