@@ -12,55 +12,66 @@ import {
   CustomerCreateRequestDto,
   CustomerUpdateRequestDto,
 } from '../dto/request/customer.request';
-import { CustomerMapper } from '../mapper/customer.mapper';
+import {
+  ApiCreateCustomer,
+  ApiCustomer,
+  ApiDeleteCustomer,
+  ApiFindAllCustomers,
+  ApiFindCustomerById,
+  ApiUpdateCustomer,
+} from '../doc/customer.doc';
 
+@ApiCustomer()
 @Controller('customers')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
+  @ApiCreateCustomer()
   @Post()
-  async createCustomer(@Body() body: CustomerCreateRequestDto) {
-    const createdCustomer = await this.customerService.createCustomer(body);
+  async create(@Body() body: CustomerCreateRequestDto) {
+    const customer = await this.customerService.createCustomer(body);
     return {
-      data: CustomerMapper.toResponse(createdCustomer),
+      message: 'Customer Berhasil dibuat',
+      data: customer,
     };
   }
 
+  @ApiFindAllCustomers()
   @Get()
-  async findAllCustomers() {
+  async findAll() {
     const customers = await this.customerService.findAllCustomers();
     return {
-      data: CustomerMapper.toResponseList(customers),
+      data: customers,
     };
   }
 
+  @ApiFindCustomerById()
   @Get('/:id')
-  async findCustomerById(@Param('id') id: string) {
-    const costumer = await this.customerService.findCustomerById(id);
+  async findOne(@Param('id') id: string) {
+    const customer = await this.customerService.findCustomerById(id);
     return {
-      data: CustomerMapper.toResponse(costumer),
+      data: customer,
     };
   }
 
+  @ApiUpdateCustomer()
   @Patch('/:id')
-  async updateCustomerById(
+  async update(
     @Param('id') id: string,
     @Body() body: CustomerUpdateRequestDto,
   ) {
-    const customerUpdated = await this.customerService.updateCustomerById(
-      id,
-      body,
-    );
+    const customer = await this.customerService.updateCustomerById(id, body);
     return {
-      data: CustomerMapper.toResponse(customerUpdated),
+      data: customer,
     };
   }
 
+  @ApiDeleteCustomer()
   @Delete('/:id')
-  async deleteCustomerById(@Param('id') id: string) {
+  async delete(@Param('id') id: string) {
     await this.customerService.deleteCustomerById(id);
     return {
-      message: 'Customer berhasil dihapus',
+      message: 'Customer dihapus',
     };
   }
 }

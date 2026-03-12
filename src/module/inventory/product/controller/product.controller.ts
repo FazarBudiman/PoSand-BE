@@ -15,76 +15,91 @@ import {
   ProductVariantCreateRequestDto,
 } from '../dto/request/product.request';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import {
+  ApiCreateProduct,
+  ApiCreateProductVariant,
+  ApiDeleteProduct,
+  ApiFindAllProducts,
+  ApiFindProductById,
+  ApiFindStockHistory,
+  ApiProduct,
+  ApiUpdateProduct,
+} from '../doc/product.doc';
 import { ProductService } from '../service/product.service';
 import { ProductStockMapper } from '../mapper/product-stock.mapper';
 
+@ApiProduct()
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @ApiCreateProduct()
   @Post()
   @RequirePermissions('product:create')
-  async createProduct(
+  async create(
     @Body() body: ProductCreateRequestDto,
-    @CurrentUser('sub') userWhoCreated: string,
+    @CurrentUser('sub') userId: string,
   ) {
-    const product = await this.productService.createProduct(
-      body,
-      userWhoCreated,
-    );
+    const product = await this.productService.createProduct(body, userId);
     return {
+      message: 'Product created',
       data: ProductMapper.toResponse(product),
     };
   }
 
+  @ApiFindAllProducts()
   @Get()
   @RequirePermissions('product:read')
-  async findAllProducts() {
+  async findAll() {
     const products = await this.productService.findAllProducts();
     return {
       data: ProductMapper.toResponseList(products),
     };
   }
 
+  @ApiFindProductById()
   @Get('/:id')
   @RequirePermissions('product:read')
-  async findProductById(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     const product = await this.productService.findProductById(id);
     return {
       data: ProductMapper.toResponse(product),
     };
   }
 
-  @Post('/:id/stock')
+  @ApiCreateProductVariant()
+  @Post('/:id/variants')
   @RequirePermissions('product:create')
-  async createProductVariant(
-    @Param('id') productId: string,
+  async createVariant(
+    @Param('id') id: string,
     @Body() body: ProductVariantCreateRequestDto,
-    @CurrentUser('sub') userWhoCreated: string,
+    @CurrentUser('sub') userId: string,
   ) {
     const product = await this.productService.createProductVariant(
-      productId,
+      id,
       body,
-      userWhoCreated,
+      userId,
     );
     return {
       data: ProductMapper.toResponse(product),
     };
   }
 
-  @Get('/:id/stock')
+  @ApiFindStockHistory()
+  @Get('/:id/stock-history')
   @RequirePermissions('product:read')
-  async findStockHistoryByProductId(@Param('id') id: string) {
-    const productStocks =
+  async findStockHistory(@Param('id') id: string) {
+    const stockHistory =
       await this.productService.findStockHistoryByProductId(id);
     return {
-      data: ProductStockMapper.toResponseList(productStocks),
+      data: ProductStockMapper.toResponseList(stockHistory),
     };
   }
 
+  @ApiUpdateProduct()
   @Patch('/:id')
   @RequirePermissions('product:update')
-  async updateProduct(
+  async update(
     @Param('id') id: string,
     @Body() body: ProductUpdateRequestDto,
     @CurrentUser('sub') userWhoUpdated: string,
@@ -99,12 +114,13 @@ export class ProductController {
     };
   }
 
+  @ApiDeleteProduct()
   @Delete('/:id')
   @RequirePermissions('product:delete')
-  async deleteProduct(@Param('id') id: string) {
+  async delete(@Param('id') id: string) {
     await this.productService.deleteProductById(id);
     return {
-      message: 'Product deleted successfully',
+      message: 'Product deleted',
     };
   }
 }

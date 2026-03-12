@@ -8,58 +8,70 @@ import {
   Post,
 } from '@nestjs/common';
 import { SizeService } from '../service/size.service';
-import { SizeGroupMapper } from '../mapper/size-group.mapper';
 import {
   SizeCreateRequestDto,
   SizeUpdateRequestDto,
 } from '../dto/request/size.request';
 import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
 import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import {
+  ApiCreateSizeGroup,
+  ApiDeleteSizeGroup,
+  ApiFindAllSizeGroups,
+  ApiFindSizeGroupById,
+  ApiSize,
+  ApiUpdateSizeGroup,
+} from '../doc/size.doc';
+import { SizeGroupMapper } from '../mapper/size-group.mapper';
 
-@Controller('size-groups')
+@ApiSize()
+@Controller('sizes')
 export class SizeController {
   constructor(private readonly sizeService: SizeService) {}
 
+  @ApiFindAllSizeGroups()
   @RequirePermissions('product:read')
   @Get()
-  async findAllSizeGroups() {
+  async findAll() {
     const sizeGroups = await this.sizeService.findAllSizeGroups();
     return {
       data: SizeGroupMapper.toResponseList(sizeGroups),
     };
   }
 
+  @ApiCreateSizeGroup()
   @RequirePermissions('product:create')
   @Post()
-  async createSizeGroup(
-    @CurrentUser('sub') userId: string,
+  async create(
     @Body() body: SizeCreateRequestDto,
+    @CurrentUser('sub') userId: string,
   ) {
     const createdSizeGroup = await this.sizeService.createSizeGroup(
       userId,
       body,
     );
     return {
-      message: 'Size group created successfully',
       data: SizeGroupMapper.toResponse(createdSizeGroup),
     };
   }
 
+  @ApiFindSizeGroupById()
   @RequirePermissions('product:read')
-  @Get(':id')
-  async findSizeGroupById(@Param('id') id: string) {
+  @Get('/:id')
+  async findOne(@Param('id') id: string) {
     const sizeGroup = await this.sizeService.findSizeGroupById(id);
     return {
       data: SizeGroupMapper.toResponse(sizeGroup),
     };
   }
 
+  @ApiUpdateSizeGroup()
   @RequirePermissions('product:update')
-  @Patch(':id')
-  async updateSizeGroup(
+  @Patch('/:id')
+  async update(
     @Param('id') id: string,
-    @CurrentUser('sub') userId: string,
     @Body() body: SizeUpdateRequestDto,
+    @CurrentUser('sub') userId: string,
   ) {
     const updatedSizeGroup = await this.sizeService.updateSizeGroupById(
       id,
@@ -67,17 +79,17 @@ export class SizeController {
       body,
     );
     return {
-      message: 'Size group updated successfully',
       data: SizeGroupMapper.toResponse(updatedSizeGroup),
     };
   }
 
+  @ApiDeleteSizeGroup()
   @RequirePermissions('product:delete')
-  @Delete(':id')
-  async deleteSizeGroup(@Param('id') id: string) {
+  @Delete('/:id')
+  async delete(@Param('id') id: string) {
     await this.sizeService.deleteSizeGroupById(id);
     return {
-      message: 'Size group deleted successfully',
+      message: 'Size group deleted',
     };
   }
 }

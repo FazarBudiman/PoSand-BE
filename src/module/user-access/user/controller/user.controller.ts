@@ -14,11 +14,21 @@ import {
 } from '../dto/request/user.request.dto';
 import { UserMapper } from '../mapper/user.mapper';
 import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
+import {
+  ApiCreateUser,
+  ApiDeleteUser,
+  ApiFindAllUsers,
+  ApiFindUserById,
+  ApiUpdateUser,
+  ApiUser,
+} from '../doc/user.doc';
 
+@ApiUser()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiCreateUser()
   @RequirePermissions('user:create')
   @Post('/')
   async createUser(@Body() body: CreateUserRequestDto) {
@@ -29,6 +39,7 @@ export class UserController {
     };
   }
 
+  @ApiFindAllUsers()
   @RequirePermissions('user:read')
   @Get('/')
   async findAllUsers() {
@@ -38,6 +49,7 @@ export class UserController {
     };
   }
 
+  @ApiFindUserById()
   @RequirePermissions('user:read')
   @Get('/:id')
   async findUserById(@Param('id') id: string) {
@@ -47,6 +59,7 @@ export class UserController {
     };
   }
 
+  @ApiUpdateUser()
   @RequirePermissions('user:update')
   @Patch('/:id')
   async updateUser(@Param('id') id: string, @Body() body: PatchUserRequestDto) {
@@ -57,6 +70,7 @@ export class UserController {
     };
   }
 
+  @ApiDeleteUser()
   @RequirePermissions('user:delete')
   @Delete('/:id')
   async deleteUser(@Param('id') id: string) {
