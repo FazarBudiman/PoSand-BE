@@ -1,5 +1,5 @@
 import { Payment } from '../payment.entity';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../../shared/database/transaction/pg-transaction.manager';
 
 export const PAYMENT_REPOSITORY = 'PAYMENT_REPOSITORY';
 

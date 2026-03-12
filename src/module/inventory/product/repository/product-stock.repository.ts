@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { IProductStockRepository } from '../domain/interface/product-stock.repository.interface';
 import { ProductStockRow } from './product-stock.row';

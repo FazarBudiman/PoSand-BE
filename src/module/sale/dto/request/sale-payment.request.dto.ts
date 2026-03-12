@@ -1,5 +1,5 @@
 import { IsNotEmpty, IsOptional } from 'class-validator';
-import { PaymentMethod } from 'src/module/finance/payment/domain/type/payment-method';
+import { PaymentMethod } from '../../../finance/payment/domain/type/payment-method';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSalePaymentRequestDto {

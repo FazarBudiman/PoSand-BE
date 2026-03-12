@@ -1,4 +1,4 @@
-import { JwtPayload } from 'src/shared/types/jwt-payload.type';
+import { JwtPayload } from '../../../../shared/types/jwt-payload.type';
 
 export const TOKEN_REPOSITORY = Symbol('ITokenRepository');
 

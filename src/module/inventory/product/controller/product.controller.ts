@@ -7,14 +7,14 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
+import { RequirePermissions } from '../../../../shared/decorators/permission.decorator';
 import { ProductMapper } from '../mapper/product.mapper';
 import {
   ProductCreateRequestDto,
   ProductUpdateRequestDto,
   ProductVariantCreateRequestDto,
 } from '../dto/request/product.request';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
 import {
   ApiCreateProduct,
   ApiCreateProductVariant,

@@ -6,9 +6,9 @@ import {
   DesignCreateRequestDto,
   DesignUpdateRequestDto,
 } from '../dto/request/design.request.dto';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
-import { ConflictException } from 'src/shared/exceptions/conflict.exception';
-import { StorageService } from 'src/shared/storage/storage.service';
+import { NotFoundException } from '../../../../shared/exceptions/not-found.exception';
+import { ConflictException } from '../../../../shared/exceptions/conflict.exception';
+import { StorageService } from '../../../../shared/storage/storage.service';
 import { DesignRow } from '../repository/design.row';
 
 interface MulterFile {

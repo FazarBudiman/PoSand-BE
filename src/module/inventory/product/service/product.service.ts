@@ -13,19 +13,19 @@ import {
   ProductUpdateRequestDto,
   ProductVariantCreateRequestDto,
 } from '../dto/request/product.request';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
-import { TRANSACTION_MANAGER } from 'src/shared/database/tokens/transaction.token';
-import type { ITransactionManager } from 'src/shared/database/transaction/transaction-manager.interface';
-import { NotFoundException } from 'src/shared/exceptions/not-found.exception';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
+import { TRANSACTION_MANAGER } from '../../../../shared/database/tokens/transaction.token';
+import type { ITransactionManager } from '../../../../shared/database/transaction/transaction-manager.interface';
+import { NotFoundException } from '../../../../shared/exceptions/not-found.exception';
 import { SIZE_REPOSITORY } from '../../size/domain/interface/size.repository.interface';
 import type { ISizeRepository } from '../../size/domain/interface/size.repository.interface';
-import { ConflictException } from 'src/shared/exceptions/conflict.exception';
+import { ConflictException } from '../../../../shared/exceptions/conflict.exception';
 import { SIZE_GROUP_REPOSITORY } from '../../size/domain/interface/size-group.repository.interface';
 import type { ISizeGroupRepository } from '../../size/domain/interface/size-group.repository.interface';
 import { ProductRow } from '../repository/product.row';
 import { ProductVariant } from '../domain/product-variant.entity';
 import { ProductStockRow } from '../repository/product-stock.row';
-import { BadRequestException } from 'src/shared/exceptions/bad-request.exception';
+import { BadRequestException } from '../../../../shared/exceptions/bad-request.exception';
 
 @Injectable()
 export class ProductService {

@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IProductRepository } from '../domain/interface/product.repository.interface';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { ProductRow } from './product.row';
 import { Product } from '../domain/product.entity';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
 
 const PRODUCT_WITH_VARIANTS_QUERY = `
   SELECT

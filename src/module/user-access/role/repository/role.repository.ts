@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { IRoleRepository } from '../domain/interface/role.respository.interface';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { PG_POOL } from '../../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
 import { RoleRow } from './role.row';
 
 @Injectable()

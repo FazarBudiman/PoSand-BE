@@ -12,8 +12,8 @@ import {
   SizeCreateRequestDto,
   SizeUpdateRequestDto,
 } from '../dto/request/size.request';
-import { RequirePermissions } from 'src/shared/decorators/permission.decorator';
-import { CurrentUser } from 'src/shared/decorators/current-user.decorator';
+import { RequirePermissions } from '../../../../shared/decorators/permission.decorator';
+import { CurrentUser } from '../../../../shared/decorators/current-user.decorator';
 import {
   ApiCreateSizeGroup,
   ApiDeleteSizeGroup,

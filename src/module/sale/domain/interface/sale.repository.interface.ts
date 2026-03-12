@@ -1,4 +1,4 @@
-import { PgTransactionContext } from 'src/shared/database/transaction/pg-transaction.manager';
+import { PgTransactionContext } from '../../../../shared/database/transaction/pg-transaction.manager';
 import { Sale } from '../sale.entity';
 import { SaleRow } from '../../repository/sale.row';
 

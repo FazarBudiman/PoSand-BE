@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ITokenRepository } from 'src/module/auth/domain/interface/token.repository.interface';
-import { JwtPayload } from 'src/shared/types/jwt-payload.type';
-import { PG_POOL } from 'src/shared/database/tokens/pg.token';
+import { ITokenRepository } from '../domain/interface/token.repository.interface';
+import { JwtPayload } from '../../../shared/types/jwt-payload.type';
+import { PG_POOL } from '../../../shared/database/tokens/pg.token';
 import { Pool } from 'pg';
 import { Inject } from '@nestjs/common';
 

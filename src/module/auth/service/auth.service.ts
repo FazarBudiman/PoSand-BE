@@ -4,13 +4,13 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { TOKEN_REPOSITORY } from 'src/module/auth/domain/interface/token.repository.interface';
-import type { ITokenRepository } from 'src/module/auth/domain/interface/token.repository.interface';
+import { TOKEN_REPOSITORY } from '../domain/interface/token.repository.interface';
+import type { ITokenRepository } from '../domain/interface/token.repository.interface';
 import { PASSWORD_REPOSITORY } from '../domain/interface/password.repository.interface';
 import type { IPasswordRepository } from '../domain/interface/password.repository.interface';
 import { AUTH_REPOSITORY } from '../domain/interface/auth.repository.interface';
 import type { IAuthRepository } from '../domain/interface/auth.repository.interface';
-import { JwtPayload } from 'src/shared/types/jwt-payload.type';
+import { JwtPayload } from '../../../shared/types/jwt-payload.type';
 
 @Injectable()
 export class AuthService {
